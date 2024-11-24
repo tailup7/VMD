@@ -1,0 +1,10 @@
+C:\git\VMD\VascularModelDeformation\bin\Debug\VascularModelDeformation.exe.config
+C:\git\VMD\VascularModelDeformation\bin\Debug\VascularModelDeformation.exe
+C:\git\VMD\VascularModelDeformation\bin\Debug\VascularModelDeformation.pdb
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.csproj.AssemblyReference.cache
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.Form1.resources
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.Properties.Resources.resources
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.csproj.GenerateResource.cache
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.csproj.CoreCompileInputs.cache
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.exe
+C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.pdb
