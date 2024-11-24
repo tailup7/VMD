@@ -1,2 +1,0 @@
-C:\work2\gmsh-mesh-deformation\venv\Scripts\python
-C:\work2\gmsh-mesh-deformation\assets\make-mesh-inner.py
