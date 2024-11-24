@@ -9,7 +9,7 @@ namespace VascularModelDeformation
     internal static class Program
     {
         /// <summary>
-        /// アプリケーションのメイン エントリ ポイントです。
+        /// アプリケーションのメイン エントリ ポイントです。テスト
         /// </summary>
         [STAThread]
         static void Main()
