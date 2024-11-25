@@ -35,20 +35,18 @@ namespace VascularModelDeformation
             // Python.exe のパス (適切に変更してください!)
             string pythonExePath = @"C:\git\VMD\venv\Scripts\python.exe";
 
-            // Pythonスクリプトを実行するためのプロセス設定
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = pythonExePath,
-                Arguments = $"\"{pythonScriptPath}\"", // スクリプトの引数 (必要に応じて追加)
-                CreateNoWindow = true, // コマンドプロンプトのウィンドウを表示しない
-                UseShellExecute = false, // 標準出力を利用するため
+                Arguments = $"\"{pythonScriptPath}\"", 
+                CreateNoWindow = true, 
+                UseShellExecute = false, 
             };
 
             try
             {
-                // プロセスを開始してPythonスクリプトを実行
                 Process process = Process.Start(startInfo);
-                process.WaitForExit(); // スクリプトの実行が完了するのを待つ
+                process.WaitForExit(); 
 
                 MessageBox.Show("Making mesh has been done successfully.");
             }
