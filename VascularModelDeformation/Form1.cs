@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,8 +14,16 @@ namespace VascularModelDeformation
 {
     public partial class Form1 : Form
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool AllocConsole();
+        //#error version
+        private string DirPath;
+
         public Form1()
         {
+            AllocConsole();
+            Log.ConsoleWriteLine("start output log");
+
             InitializeComponent();
         }
 
