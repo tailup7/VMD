@@ -25,6 +25,17 @@ namespace VascularModelDeformation
             Log.ConsoleWriteLine("start output log");
 
             InitializeComponent();
+
+            var os = Environment.OSVersion;
+            Console.WriteLine("Current OS Information:\n");
+            string thisOs = os.Platform.ToString();
+            Console.WriteLine("Platform: {0:G}", os.Platform);
+            Console.WriteLine("Version String: {0}", os.VersionString);
+            Console.WriteLine("Version Information:");
+            Console.WriteLine("   Major: {0}", os.Version.Major);
+            Console.WriteLine("   Minor: {0}", os.Version.Minor);
+            Console.WriteLine("Service Pack: '{0}'", os.ServicePack);
+            Console.WriteLine(RuntimeInformation.FrameworkDescription);
         }
 
         private void button1_Click(object sender, EventArgs e)
