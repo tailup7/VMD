@@ -117,5 +117,18 @@ namespace VascularModelDeformation
             hash = hash * 23 + Z.GetHashCode();
             return hash;
         }
+        public override bool Equals(object obj) 
+        {
+            Node node = obj as Node; 
+            if (node == null) 
+                return false;
+            return X == node.X && Y == node.Y && Z == node.Z; 
+        }
+        public string Print()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"({this.X}, {this.Y}, {this.Z})"); 
+            return sb.ToString();
+        }
     }
 }
