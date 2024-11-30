@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -117,6 +118,11 @@ namespace VascularModelDeformation
             hash = hash * 23 + Z.GetHashCode();
             return hash;
         }
+        /// <summary>
+        /// 2つのNodeが同じかどうか判定する
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj) 
         {
             Node node = obj as Node; 
@@ -124,11 +130,59 @@ namespace VascularModelDeformation
                 return false;
             return X == node.X && Y == node.Y && Z == node.Z; 
         }
+        /// <summary>
+        /// 座標を出力する
+        /// </summary>
+        /// <returns></returns>
         public string Print()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"({this.X}, {this.Y}, {this.Z})"); 
             return sb.ToString();
+        }
+        /// <summary>
+        /// このNode と引数のNode の距離を求める
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public float Distance(Node node)
+        {
+            float distance = (float)Math.Sqrt(Math.Pow(this.X - node.X, 2) + Math.Pow(this.Y - node.Y, 2) + Math.Pow(this.Z - node.Z, 2));
+            return distance;
+        }
+
+        public Vector3 Difference(Node node)
+        {
+            Vector3 vec = new Vector3(this.X - node.X, this.Y - node.Y, this.Z - node.Z);
+            return vec;
+        }
+
+        public IEnumerable<Edge> GetAroundEdge 
+        {
+            get
+            {
+                if (this.AroundEdge == null)
+                    yield break;
+
+                foreach (var edge in this.AroundEdge)
+                    yield return edge;
+            }
+        }
+        /// <summary>
+        /// このEdgeを含むFace
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Cell> GetAroundCell
+        {
+            get
+            {
+                if (this.AroundEdge == null)
+                    yield break;
+
+                foreach (var edge in this.AroundEdge)
+                    yield return edge.Cell;    //
+            }
+
         }
     }
 }
