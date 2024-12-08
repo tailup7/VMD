@@ -1,4 +1,3 @@
-reference.txt
-LocalPath.txt
+*.txt
 venv/
 VascularModelDeformation/.vs/

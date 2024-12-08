@@ -168,6 +168,17 @@ namespace VascularModelDeformation
                     yield return edge;
             }
         }
+        public IEnumerable<Edge> GetAroundEdgeFromThisNode
+        {
+            get
+            {
+                if (this.AroundEdgeFromThisNode == null)
+                    yield break;
+
+                foreach (var edge in this.AroundEdgeFromThisNode)
+                    yield return edge;
+            }
+        }
         /// <summary>
         /// このEdgeを含むFace
         /// </summary>
@@ -234,6 +245,52 @@ namespace VascularModelDeformation
                     foreach (var edge2 in edge1.End.AroundEdge)
                         yield return edge2.End;
             }
+        }
+    }
+
+    /// <summary>
+    /// NodeCenterline
+    /// </summary>
+    public class NodeCenterline : Node
+    {
+        public float XTangent { get; set; }
+        public float YTangent { get; set; }
+        public float ZTangent { get; set; }
+        public float XMovedTangent { get; set; }
+        public float YMovedTangent { get; set; }
+        public float ZMovedTangent { get; set; }
+        public float[] Difference { get; set; } = new float[3] { 0.0f, 0.0f, 0.0f };
+        public float[,] RodriguesMatrix { get; set; } = new float[3, 3];
+        public float[,] RotationMatrix { get; set; } = new float[3, 3];
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public NodeCenterline()
+        {
+            //Debug.WriteLine($"This is NodeCenterLine constructor.");
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public NodeCenterline(float x, float y, float z)
+        {
+            //Debug.WriteLine($"This is NodeCenterLine constructor.");
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
+    }
+    public class NodeSurface : Node
+    {
+        public int CorrespondCenterlineIndices { get; set; }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public NodeSurface()
+        {
+            //Debug.WriteLine($"This is NodeSurface constructor.");
         }
     }
 }
