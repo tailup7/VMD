@@ -180,9 +180,31 @@ namespace VascularModelDeformation
                     yield break;
 
                 foreach (var edge in this.AroundEdge)
-                    yield return edge.Cell;    //
+                    yield return edge.Cell;    
             }
 
+        }
+        public void AddAroundEdge(Edge edge)
+        {
+            if (!this.AroundEdge.Contains(edge))
+                this.AroundEdge.Add(edge);
+        }
+        /// <summary>
+        /// このNodeを含むEdgeを追加する
+        /// </summary>
+        /// <param name="edge"></param>
+        public void AddAroundEdgeFromThisNode(Edge edge)
+        {
+            if (!this.AroundEdgeFromThisNode.Contains(edge))
+                this.AroundEdgeFromThisNode.Add(edge);
+        }
+        public void ClearAroundEdgeFromThisNode()  
+        {
+            AroundEdgeFromThisNode.Clear();
+        }
+        public void RemoveAroundEdgeFromThisNode(Edge edge)
+        {
+            AroundEdgeFromThisNode.Remove(edge);
         }
     }
 }
