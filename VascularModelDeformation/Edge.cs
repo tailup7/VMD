@@ -24,5 +24,39 @@ namespace VascularModelDeformation
         public Edge Next { get; set; } 
         public Edge Prev { get; set; }
         public Edge Pair { get; set; }
+        public bool DoEdgeSwap { get; set; } = false;
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public Edge()
+        { 
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="cell"></param>
+        /// <param name="index"></param>
+        public Edge(Node start, Node end, Cell cell, int index) 
+        {                                  
+            this.Start = start;            
+            this.End = end;
+            this.Cell = cell;
+            this.Index = index;
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="index"></param>
+        public Edge(Node start, Node end, int index)
+        {
+            this.Start = start;
+            this.End = end;
+            this.Index = index;
+        }
     }
 }

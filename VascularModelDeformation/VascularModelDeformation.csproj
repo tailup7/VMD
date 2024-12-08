@@ -57,6 +57,7 @@
     </Compile>
     <Compile Include="IO.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="Mesh.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
