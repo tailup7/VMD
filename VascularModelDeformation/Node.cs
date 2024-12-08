@@ -206,5 +206,34 @@ namespace VascularModelDeformation
         {
             AroundEdgeFromThisNode.Remove(edge);
         }
+        /// <summary>
+        /// このNodeの1リング近傍Nodeを取得する
+        /// </summary>
+        public IEnumerable<Node> GetOneRingNode
+        {
+            get
+            {
+                if (this.AroundEdge == null)
+                    yield break;
+
+                foreach (var edge in this.AroundEdge)
+                    yield return edge.End;
+            }
+        }
+        /// <summary>
+        /// このNodeの2リング近傍Nodeを取得する
+        /// </summary>
+        public IEnumerable<Node> GetTwoRingNode
+        {
+            get
+            {
+                if (this.AroundEdge == null)
+                    yield break;
+
+                foreach (var edge1 in this.AroundEdge)
+                    foreach (var edge2 in edge1.End.AroundEdge)
+                        yield return edge2.End;
+            }
+        }
     }
 }
