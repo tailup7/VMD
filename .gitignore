@@ -1,3 +1,4 @@
-*.txt
+memo.txt
+reference.txt
 venv/
 VascularModelDeformation/.vs/
