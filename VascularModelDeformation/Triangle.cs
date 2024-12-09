@@ -99,5 +99,159 @@ namespace VascularModelDeformation
         /// </summary>
         public int CorrespondCenterlineIndex { get; set; } = -1;
         public Vector3 CorrespondTriangleVector { get; set; } = new Vector3(0.0f, 0.0f, 0.0f);
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="n0"></param>
+        /// <param name="n1"></param>
+        /// <param name="n2"></param>
+        /// <param name="correspondCenterlineIndex"></param>
+        public Triangle(int index, Node n0, Node n1, Node n2, int correspondCenterlineIndex)
+        {
+            this.Index = index;
+            this.N0 = n0;
+            this.N1 = n1;
+            this.N2 = n2;
+            this.Nodes = new List<Node>() { n0, n1, n2 };
+            this.CorrespondCenterlineIndex = correspondCenterlineIndex;
+            this.Calculate();
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="n0"></param>
+        /// <param name="n1"></param>
+        /// <param name="n2"></param>
+        public Triangle(int index, Node n0, Node n1, Node n2)
+        {
+            this.Index = index;
+            this.N0 = n0;
+            this.N1 = n1;
+            this.N2 = n2;
+            this.Nodes = new List<Node>() { n0, n1, n2 };
+            this.Calculate();
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="n0"></param>
+        /// <param name="n1"></param>
+        /// <param name="n2"></param>
+        public Triangle(Node n0, Node n1, Node n2)
+        {
+            this.N0 = n0;
+            this.N1 = n1;
+            this.N2 = n2;
+            this.Nodes = new List<Node>() { n0, n1, n2 };
+            this.Calculate();
+        }
+        public void Calculate()
+        {
+            Node n0 = this.N0;
+            Node n1 = this.N1;
+            Node n2 = this.N2;
+            this.E0 = Utility.EdgeVector(n1, n2);
+            this.E1 = Utility.EdgeVector(n2, n0);
+            this.E2 = Utility.EdgeVector(n0, n1);
+            this.E0L2Norm = Utility.L2Norm(this.E0);
+            this.E1L2Norm = Utility.L2Norm(this.E1);
+            this.E2L2Norm = Utility.L2Norm(this.E2);
+            this.EL2NormMax = Utility.CalLengthMax(this.E0, this.E1, this.E2);
+            this.EL2NormMin = Utility.CalLengthMin(this.E0, this.E1, this.E2);
+            this.Normal = Utility.CrossProductNormal(this.E1, (-1.0f) * this.E0);
+            this.Center = CalculateCenter();
+            this.Area = CalculateArea();
+            this.Volume = CalculateVolume();
+            this.r = Calculater();
+            this.R = CalculateR();
+            this.QualityAspectRatio = CalculateQualityAspectRatio();
+            this.QualityEdgeRatio = CalculateQualityEdgeRatio();
+            this.QualityRadiusRatio = CalculateQualityRadiusRatio();
+        }
+        /// <summary>
+        /// 三角形の重心を計算する
+        /// </summary>
+        /// <param name="n0"></param>
+        /// <param name="n1"></param>
+        /// <param name="n2"></param>
+        /// <returns></returns>
+        public Node CalculateCenter()
+        {
+            return new Node(
+                (this.N0.X + this.N1.X + this.N2.X) / 3.0f,
+                (this.N0.Y + this.N1.Y + this.N2.Y) / 3.0f,
+                (this.N0.Z + this.N1.Z + this.N2.Z) / 3.0f
+            );
+        }
+        /// <summary>
+        /// 三角形の体積を計算する
+        /// 2次元なので0.0fを返す
+        /// </summary>
+        /// <returns></returns>
+        public float CalculateVolume()
+        {
+            return 0.0f;
+        }
+        /// <summary>
+        /// 三角形の面積を計算する
+        /// </summary>
+        /// <param name="e0"></param>
+        /// <param name="e1"></param>
+        /// <returns></returns>
+        public float CalculateArea()
+        {
+            return 0.5f * Utility.CrossProductNormal(this.E1, (-1.0f) * this.E0).Length();
+        }
+        /// <summary>
+        /// rを計算する
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="e0L2Norm"></param>
+        /// <param name="e1L2Norm"></param>
+        /// <param name="e2L2Norm"></param>
+        /// <returns></returns>
+        public float Calculater() 
+        {
+            return (2.0f * this.Area) / (this.E0L2Norm + this.E1L2Norm + this.E2L2Norm);
+        }
+        /// <summary>
+        /// Rを計算する
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="e0L2Norm"></param>
+        /// <param name="e1L2Norm"></param>
+        /// <param name="e2L2Norm"></param>
+        /// <returns></returns>
+        public float CalculateR() 
+        {
+            return (this.E0L2Norm * this.E1L2Norm * this.E2L2Norm) / (2.0f * r * (this.E0L2Norm + this.E1L2Norm + this.E2L2Norm));
+        }
+        /// <summary>
+        /// QualityAspectRatioを計算する
+        /// </summary>
+        /// <param name="vL2Max"></param>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        public float CalculateQualityAspectRatio()
+        {
+            //return this.EL2NormMax / (2.0f * (float)Math.Sqrt(3) * this.r);
+            return (this.EL2NormMax * (this.E0L2Norm + this.E1L2Norm + this.E2L2Norm)) / (4.0f * (float)Math.Sqrt(3) * this.Area);
+        }
+        /// <summary>
+        /// QualityEdgeRatioを計算する
+        /// </summary>
+        /// <param name="eL2Max"></param>
+        /// <param name="eL2Min"></param>
+        /// <returns></returns>
+        public float CalculateQualityEdgeRatio()
+        {
+            return this.EL2NormMax / this.EL2NormMin;
+        }
+        public float CalculateQualityRadiusRatio()
+        {
+            return this.R / (2.0f * this.r);
+        }
     }
 }
