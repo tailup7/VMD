@@ -151,7 +151,102 @@ namespace VascularModelDeformation
 
 
 
+
+
+
+
+
+        /// <summary>
+        /// 引数は、ファイルの中身が一行ずつ格納された文字列配列
+        /// gmshから出力されたファイル「.msh」を読み込んで、ノードやエレメントを抜き出す
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <returns>
+        /// </returns>
+        public virtual void LoadMesh(string[] lines)
+        {
+            if (lines == null)
+                return;
+
+            int[][] elements = null;
+            Dictionary<int, string> PhysicalNamesCorrespondence = null;
+            var physicalInfos = new List<PhysicalInfo>();
+            // Interpret lines.
+            for (int currentLine = 0; currentLine < lines.Length; currentLine++)
+            {
+                if (lines[currentLine] == "$MeshFormat")
+                {
+                    //Debug.WriteLine("This is MeshFormat.");
+                    currentLine += 2;
+                }
+                else if (lines[currentLine] == "$PhysicalNames")
+                {
+                    // TODO: PhysicalNamesが定義されていないときには対応できていない
+                    currentLine += 1;
+                    var physicalNameNumber = int.Parse(lines[currentLine]);
+                    PhysicalNamesCorrespondence = new Dictionary<int, string>();
+                    for (int index = 0; index < physicalNameNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] cols = lines[currentLine].Split(' ');
+                        var dimension = int.Parse(cols[0]);
+                        var id = int.Parse(cols[1]);
+                        var name = cols[2].Replace("\"", "");
+                        PhysicalNamesCorrespondence.Add(id, name);
+                        PhysicalInfo physicalInfo = new PhysicalInfo(dimension, id, name);
+                        physicalInfos.Add(physicalInfo);
+                    }
+                }
+                else if (lines[currentLine] == "$Nodes")
+                {
+                    //Debug.WriteLine($"Nodes");
+                    currentLine += 1;
+                    var nodesNumber = int.Parse(lines[currentLine]);
+                    this.Nodes = new List<Node>();
+                    for (int index = 0; index < nodesNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] cols = lines[currentLine].Split(' ');
+                        float x = float.Parse(cols[1]);
+                        float y = float.Parse(cols[2]);
+                        float z = float.Parse(cols[3]);
+                        Node node = new Node(index, x, y, z);
+                        this.Nodes.Add(node);
+                    }
+                }
+                else if (lines[currentLine] == "$Elements")
+                {
+                    // elementは1-index
+                    currentLine += 1;
+                    var elementsNumber = int.Parse(lines[currentLine]);
+                    elements = new int[elementsNumber][];
+                    for (int index = 0; index < elementsNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] splittedLine = lines[currentLine].Split(' ');
+                        var array = new int[splittedLine.Length];
+                        for (int c = 0; c < splittedLine.Length; c++)
+                        {
+                            array[c] = int.Parse(splittedLine[c]);
+                        }
+                        elements[index] = array;
+                    }
+                }
+            }
+
+            if (elements == null)
+                throw new Exception("elementsが読み込めませんでした");
+
+            this.Cells = MakeCells(elements);
+            this.PhysicalInfos = physicalInfos;
+        }
+
+
+
+
     }
+
+
     [Serializable]
     public class MeshSurface : Mesh
     {
