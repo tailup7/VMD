@@ -3,36 +3,36 @@
   "WorkspaceRootPath": "C:\\git\\VMD\\VascularModelDeformation\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\io.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:io.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\mesh.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:mesh.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\node.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:node.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\edge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:edge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\node.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:node.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\log.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:log.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\mesh.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:mesh.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\io.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:io.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|c:\\git\\vmd\\vascularmodeldeformation\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1831ACB1-1EFB-46EC-B1F8-C4865F5BD8D9}|VascularModelDeformation.csproj|C:\\git\\VMD\\VascularModelDeformation\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -46,11 +46,29 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
+              "Title": "IO.cs",
+              "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\IO.cs",
+              "RelativeDocumentMoniker": "IO.cs",
+              "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\IO.cs",
+              "RelativeToolTip": "IO.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-25T06:53:19.417Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Mesh.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Mesh.cs",
               "RelativeDocumentMoniker": "Mesh.cs",
@@ -63,59 +81,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Cell.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Cell.cs",
               "RelativeDocumentMoniker": "Cell.cs",
               "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\Cell.cs",
               "RelativeToolTip": "Cell.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAowFMAAABbAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFMAAABbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-25T07:30:03.132Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "Edge.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Edge.cs",
               "RelativeDocumentMoniker": "Edge.cs",
               "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\Edge.cs",
               "RelativeToolTip": "Edge.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAC4AAAAAAAAAAAAAACEAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-25T07:29:06.633Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 0,
               "Title": "Node.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Node.cs",
               "RelativeDocumentMoniker": "Node.cs",
               "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\Node.cs",
               "RelativeToolTip": "Node.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAAACUAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-25T07:28:19.715Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "IO.cs",
-              "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\IO.cs",
-              "RelativeDocumentMoniker": "IO.cs",
-              "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\IO.cs",
-              "RelativeToolTip": "IO.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABoAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-25T06:53:19.417Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -128,24 +133,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 2,
               "Title": "Log.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Log.cs",
               "RelativeDocumentMoniker": "Log.cs",
               "ToolTip": "C:\\git\\VMD\\VascularModelDeformation\\Log.cs",
               "RelativeToolTip": "Log.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-25T05:30:13.62Z",
               "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 7,
               "Title": "Form1.cs",
               "DocumentMoniker": "C:\\git\\VMD\\VascularModelDeformation\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
