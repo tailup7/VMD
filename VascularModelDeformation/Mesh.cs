@@ -176,11 +176,263 @@ namespace VascularModelDeformation
             GetNumberOfMostInnerPrismLayer();
             GetNumberOfLayer();
         }
+        /// <summary>
+        /// cellの種類と境界の番号でセル（エレメント）の様子数を調べて
+        /// 新しくList<Cell>を作る
+        /// </summary>
+        /// <param name="cellType"></param>
+        /// <param name="physicalID"></param>
+        /// <returns></returns>
+        public virtual (int, List<Cell>) GetNumberOfCells(CellType cellType, int physicalID)
+        {
+            int num = 0;
+            List<Cell> cells = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == cellType && cell.PhysicalID == physicalID)
+                {
+                    cells.Add(cell);
+                    num++;
+                }
+            }
+            return (num, cells);
+        }
+        public virtual void GetNumberOfLayer()
+        {
+            int numberOfLayer = 0;
+            try
+            {
+                numberOfLayer = this.NumberOfPrismLayerCells / this.NumberOfWallCells;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                Environment.Exit(0);
+            }
+            this.NumberOfLayer = numberOfLayer;
+        }
+        /// <summary>
+        /// NumberOfWallCellsに、WALL上の三角形パッチの総数を格納
+        /// CellsWallに、WALL上の三角形パッチの集合を格納
+        /// </summary>
+        public virtual void GetNumberOfWALLCells()
+        {
+            (var numberOfWallCells, List<Cell> cellsWall) = GetNumberOfCells(CellType.Triangle, 10); 
+                                                                                                     
+            this.NumberOfWallCells = numberOfWallCells;
+            this.CellsWall = cellsWall;
+        }
+        public virtual void GetNumberOfInnerWallCells()
+        {
+            (var numberOfInnerWallCells, List<Cell> cellsInnerWall) = GetNumberOfCells(CellType.Triangle, 90);
+            this.NumberOfInnerWallCells = numberOfInnerWallCells;
+            this.CellsInnerWall = cellsInnerWall;
+        }
+        public virtual void GetNumberOfTetraCells()
+        {
+            (var numberOfTetrahedronCells, List<Cell> cellsTetra) = GetNumberOfCells(CellType.Tetrahedron, 100);
+            this.NumberOfTetrahedronCells = numberOfTetrahedronCells;
+            this.CellsTetra = cellsTetra;
+        }
+        /// <summary>
+        /// NumberOfPrismLayerCellsにプリズムセルの総数を
+        /// CellsPrismLayerにすべてのプリズムセルの集合を格納
+        /// </summary>
+        public virtual void GetNumberOfPrismLayerCells()
+        {
+            (var numberOfPrismLayerCells, List<Cell> cellsPrismLayer) = GetNumberOfCells(CellType.Prism, 100);
+            this.NumberOfPrismLayerCells = numberOfPrismLayerCells;
+            this.CellsPrismLayer = cellsPrismLayer;
+        }
 
+        /// <summary>
+        /// NumberOfMostInnerPrismLayerCells に最も内側のプリズム層のプリズムセルの総数を
+        /// CellsMostInnerPrismLayer　に最内側プリズム層のプリズムセルの集合           を格納
+        /// </summary>
+        public virtual void GetNumberOfMostInnerPrismLayer() 
+        {
+            int numberOfLayer = this.SurfaceCellCorrespondPrismCells[0].Count - 1;  
+            Debug.WriteLine("====================================");
+            Debug.WriteLine($"{numberOfLayer}");
+            Debug.WriteLine("====================================");
+            int numberOfPrismLayer = 0;
+            int numberOfMostInnerCells = 0;
+            List<Cell> cellsMostInnerPrismLayer = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == CellType.Prism) // (CellType.Prismの) cell 要素の並び方は、表面の5,6層ある三角柱を縦にひとまとまりで考えて、 
+                {                  // 1つ目の三角柱群: cell index: 0(最も外側),1,2,3,4,5(最も内側), 2つめの三角柱群: cell index: 6(最も外側),7,8,9,10,11(最も内側) 
+                    numberOfPrismLayer++;                           // 外側から数えて何番目の層か
+                    if (numberOfPrismLayer % numberOfLayer == 0)    // 最も内側の層に属する cell ならば
+                    {
+                        cellsMostInnerPrismLayer.Add(cell);  
+                        numberOfMostInnerCells++; 
+                    }
+                }
+            }
+            this.NumberOfMostInnerPrismLayerCells = numberOfMostInnerCells; 
+            this.CellsMostInnerPrismLayer = cellsMostInnerPrismLayer; 
+            Debug.WriteLine($"NumberOfMostInnerPrismLayerCells : {this.NumberOfMostInnerPrismLayerCells}");
+        }
 
+        public virtual void GetNumberOfInletQuadrilateralCells()
+        {
+            (var numberOfInletQuadrilateralCells, List<Cell> cellsInletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 11);
+            this.NumberOfInletQuadrilateralCells = numberOfInletQuadrilateralCells;
+            this.CellsInletQuadrilateral = cellsInletQuadrilateral;
+        }
+        public virtual void GetNumberOfOutletQuadrilateralCells()
+        {
+            (var numberOfOutletQuadrilateralCells, List<Cell> cellsOutletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 12);
+            this.NumberOfOutletQuadrilateralCells = numberOfOutletQuadrilateralCells;
+            this.CellsOutletQuadrilateral = cellsOutletQuadrilateral;
+        }
+        /// <summary>
+        /// プリズムセルを、各層ごとにグループ分け
+        /// </summary>
+        public virtual void SplitPrismLayersIntoEachPrismLayer()
+        {
+            if (this.NumberOfWallCells == 0)
+                return;                         
 
+            int numberOfWallCells = this.NumberOfWallCells;                   // NumberOfWallCells: WALL上の三角形パッチの総数。
+            int numberOfPrismLayerCells = this.NumberOfPrismLayerCells;       // NumberOfPrismLayerCells : この血管モデルのプリズムセルの総数。
+            int numberOfLayer = (int)(numberOfPrismLayerCells / numberOfWallCells);   // プリズム層の数。
+            this.NumberOfLayer = numberOfLayer;
+            Debug.WriteLine($"{numberOfLayer}");
 
+            this.CellsEachPrismLayer = new List<List<Cell>>();  
+            for (int i = 0; i < numberOfLayer; i++)
+            {
+                this.CellsEachPrismLayer.Add(new List<Cell>()); 
+            }
+            int counter = 0;
+            foreach (var cell in this.CellsPrismLayer)                                // CellsPrismLayerは、全てのプリズムセルの集合。
+            {
+                if (cell.CellType == CellType.Prism)
+                {
+                    this.CellsEachPrismLayer[counter % this.NumberOfLayer].Add(cell); // 最初の (index=0の)プリズムセルは最初のList<Cell>に格納される、
+                    counter++;                                                         // 次の (index=1の)プリズムセルは次のList<Cell>に格納される、 ...
+                }
+            }
+        }
 
+        /// <summary>
+        /// それぞれの三角柱群の構成プリズムセルに対して、その三角柱群の外側三角形パッチが持つ中心線との対応(surfeceCorrespondIndex[i] )を同様に与える。
+        /// </summary>
+        /// <param name="surfaceCorrespondIndex"></param>
+        public void SetCellCorrespondCenterlineIndex(List<int> surfaceCorrespondIndex) 
+        {                                                    // surfaceCorrespondIndex : すべての表面三角形パッチの、対応する中心線点群の点番号のリスト。
+                                                                                      // 要素数は、表面上の三角形パッチの総数。
+            int numberOfWallCells = this.NumberOfWallCells;
+            int numberOfPrismLayerCells = this.NumberOfLayer;
+            for (int i = 0; i < numberOfWallCells; i++)
+            {
+                int correspondIndex = surfaceCorrespondIndex[i];
+                this.SurfaceCellCorrespondPrismCells[i][0].CorrespondIndex = correspondIndex; // SurfaceCellCorrespondPrismCells[i][0]:i番目の三角柱群で、0番目つまり最も外側のプリズムセル
+                for (int j = 0; j < numberOfPrismLayerCells; j++)                          // その三角柱群のうち、外側から数えてj+1番目の三角柱
+                {
+                    this.SurfaceCellCorrespondPrismCells[i][j + 1].CorrespondIndex = correspondIndex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// assign face correspond index to node correspond index
+        /// 中心線ノードは、Cellに対応している
+        /// 実際に移動させるのはCellに所属しているノード
+        /// なので、Cellに対応するノードに中心線のindexを割り当てる
+        /// またNodeは複数のCellに所属しているが、一つしか採用せず値が小さいほうを用いる.   
+        /// </summary>　　　　　　　　　　　　　
+        /// すべての三角柱群の、プリズムセルを構成するすべてのNodeに対して、対応する中心線点番号を割り当てる。この際、表面三角形パッチと中心線点番号の対応をそのまま割り当てる。
+        public void AssignFaceCorrespondIndexToNodeCorrespondIndex()
+        {
+            foreach (var cells in this.SurfaceCellCorrespondPrismCells)  
+            {                                                              
+                foreach (var cell in cells)                              
+                {
+                    int correspondIndex = cell.CorrespondIndex;   // public void SetCellCorrespondCenterlineIndex(List<int> surfaceCorrespondIndex) にて、各プリズムに対する
+                    foreach (var node in cell.NodesIndex)           // 中心線上の点との対応を与えている。
+                    {
+                        if (this.Nodes[node - 1].CorrespondCenterlineIndex == -1)  // Nodes はList<Node>型 (このファイルの最上で定義)。ここでの要素数はおそらく6。
+                        {                                               
+                            this.Nodes[node - 1].CorrespondCenterlineIndex = correspondIndex;  // まだ割り当てていないなら、プリズムに対して付けられた中心線点番号を割り当てる。
+                        }
+                        else
+                        {
+                            if (this.Nodes[node - 1].CorrespondCenterlineIndex > correspondIndex)
+                            {
+                                this.Nodes[node - 1].CorrespondCenterlineIndex = correspondIndex;     // 中心線点番号のより小さい方を採用する
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// assign face correspond index to node correspond index
+        /// 中心線ノードは、Cellに対応している
+        /// 実際に移動させるのはCellに所属しているノード
+        /// なので、Cellに対応するノードに中心線のindexを割り当てる
+        /// またNodeは複数のCellに所属しているので、Listで管理する
+        /// </summary>
+        public void AssignFaceCorrespondIndexToNodeCorrespondIndexList()
+        {
+            foreach (var cell in this.Cells)
+            {
+                int correspondIndex = cell.CorrespondIndex;
+
+                if (correspondIndex == -1)
+                    continue;   // 処理をスキップして次のcellに行く。テトラメッシュや三角形パッチは、cell.CorrespondIndexを割り当てられていないのため、スキップされる。
+                foreach (var index in cell.NodesIndex)
+                {
+                    if (this.Nodes[index - 1].CorrespondIndexList == null) 
+                        this.Nodes[index - 1].CorrespondIndexList = new List<int>(); 
+
+                    this.Nodes[index - 1].CorrespondIndexList.Add(correspondIndex); 
+                }                              // 1つのNodeは複数のcell (ここではプリズムセル)の構成要素になっているので、その分だけListに要素が追加される
+            }
+        }
+
+        /// <summary>
+        /// prismLayerに対しての処理
+        /// SurfaceCellCorrespondPrismCells
+        /// に、三角形パッチ、三角柱群 (List<Cell>) のセットを、プリズム層全体に対して
+        /// リストとして格納
+        /// 
+        /// </summary>
+        public void FetchPrismLayerData()
+        {
+            this.SurfaceCellCorrespondPrismCells = new List<List<Cell>>(); 
+                                                                  
+            for (int i = 0; i < this.NumberOfWallCells; i++)
+            {
+                this.SurfaceCellCorrespondPrismCells.Add(new List<Cell>());  
+            }                                                        
+            int counter = 0;
+            foreach (var cellW in this.CellsWall)
+            {
+                this.SurfaceCellCorrespondPrismCells[counter % this.NumberOfWallCells].Add(cellW);
+                counter++;                   
+            }                       
+            int counterTmp = 0;
+            int index = 0;
+            foreach (var cellB in this.CellsPrismLayer)   
+            {
+                this.SurfaceCellCorrespondPrismCells[index].Add(cellB); 
+                counterTmp++;
+                if (counterTmp >= this.NumberOfLayer) 
+                {
+                    index++;                          
+                    counterTmp = 0;
+                }
+            }
+        }
 
         /// <summary>
         /// 引数は、ファイルの中身が一行ずつ格納された文字列配列
