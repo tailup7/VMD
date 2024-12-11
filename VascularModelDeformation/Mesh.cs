@@ -644,6 +644,487 @@ namespace VascularModelDeformation
                 line[10]
             };
         }
+        public void OrganizeEntityInfo()
+        {
+            var cellsOfSOMETHING = ExtractCellsOfSOMETHING(this.Cells);
+            this.SomethingEntityIDTriangleNodesHashSetList = MakeSOMETHINGCellHashSet(cellsOfSOMETHING, this.SOMETHINGEntityIDTriangleHashSet);
+            this.SomethingEntityIDQuadrilateralNodesHashSetList = MakeSOMETHINGCellHashSet(cellsOfSOMETHING, this.SOMETHINGEntityIDQuadrilateralHashSet);
+            this.EntityInfos = DeriveEntityInfos(cellsOfSOMETHING);
+        }
+
+
+
+
+        public void AddPhysicalID()
+        {
+            PhysicalInfo inletPhysicalInfo = new PhysicalInfo(2, 11, "INLET");
+            PhysicalInfo outletPhysicalInfo = new PhysicalInfo(2, 12, "OUTLET");
+            this.PhysicalInfos.Add(inletPhysicalInfo);
+            this.PhysicalInfos.Add(outletPhysicalInfo);
+        }
+        /// <summary>
+        /// SOMETHINGであったPysicalIDを書き換える
+        /// </summary>
+        public void RewritePhysicalID()
+        {
+            foreach (var cell in this.Cells)
+            {
+                if (this.InletEntityIDCorrespond.ContainsKey(cell.EntityID))
+                {
+                    cell.PhysicalID = 11;
+                }
+                if (this.OutletEntityIDCorrespond.ContainsKey(cell.EntityID))
+                {
+                    cell.PhysicalID = 12;
+                }
+            }
+
+        }
+
+        public MeshSurfaceAndPrismLayer MakeNeedPart()  //658
+        {
+            MakeCellsNeed();
+            MakeNodesNeed();
+            RenumberCellNodeIndex();
+            MeshSurfaceAndPrismLayer newMesh = MakeMeshNeed();
+            return newMesh;
+        }
+        /// <summary>
+        ///
+        /// </summary>
+        private void MakeCellsNeed()
+        {
+            foreach (var cell in this.Cells)
+            {
+                bool need = false;
+                // prismLayerを残す
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    need = false;
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    need = true;
+                }
+                if (cell.CellType == CellType.Triangle)
+                {
+                    if (cell.PhysicalID == 10)
+                    {
+                        need = true;
+                    }
+                    if (cell.PhysicalID == 11)
+                    {
+                        need = false;
+                    }
+                    if (cell.PhysicalID == 12)
+                    {
+                        need = false;
+                    }
+                    if (cell.PhysicalID == 99)
+                    {
+                        need = false;
+                    }
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    if (cell.PhysicalID == 11)
+                    {
+                        need = true;
+                    }
+                    if (cell.PhysicalID == 12)
+                    {
+                        need = true;
+                    }
+                }
+                cell.Need = need;
+            }
+            this.CellsNeed = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.Need == true)
+                {
+                    this.CellsNeed.Add(cell);
+                }
+            }
+            Debug.WriteLine($"=====================================");
+            Debug.WriteLine($"{this.Cells.Count}");
+            Debug.WriteLine($"{this.CellsNeed.Count}");
+            Debug.WriteLine($"=====================================");
+        }
+        /// <summary>
+        ///
+        /// </summary>
+        private void MakeNodesNeed()
+        {
+            foreach (var cell in this.CellsNeed)
+            {
+                for (int i = 0; i < cell.NodesIndex.Length; i++)
+                {
+                    int index = cell.NodesIndex[i];
+                    this.Nodes[index - 1].Need = true;
+                }
+            }
+            // このHashSetはすでにDictionaryに追加されているかどうかを調べるためだけに存在
+            HashSet<Node> tmpNodesHashSet = new HashSet<Node>();
+            Dictionary<int, int> nodeIndexCorrespond = new Dictionary<int, int>();
+            int counter = 0;
+            this.NodesNeed = new List<Node>();
+            this.NodeIndexCorrespond = new Dictionary<int, int>();
+            foreach (var node in this.Nodes)
+            {
+                if (node.Need == true)
+                {
+                    bool addOrNotAdd = tmpNodesHashSet.Add(node);
+                    if (addOrNotAdd)
+                    {
+                        Node newNode = new Node()
+                        {
+                            Index = counter,
+                            X = node.X,
+                            Y = node.Y,
+                            Z = node.Z,
+                            Need = true,
+                            CorrespondCenterlineIndex = node.CorrespondCenterlineIndex,
+                        };
+                        newNode.CorrespondIndexList = new List<int>(node.CorrespondIndexList);
+                        this.NodesNeed.Add(newNode);
+                        nodeIndexCorrespond.Add(node.Index + 1, newNode.Index + 1);
+                        counter++;
+                    }
+                }
+            }
+            this.NodeIndexCorrespond = nodeIndexCorrespond;
+            Debug.WriteLine($"=====================================");
+            Debug.WriteLine($"{this.Nodes.Count}");
+            Debug.WriteLine($"{this.NodesNeed.Count}");
+            Debug.WriteLine($"=====================================");
+        }
+        /// <summary>
+        ///
+        /// </summary>
+        private void RenumberCellNodeIndex()
+        {
+            foreach (var cell in this.CellsNeed)
+            {
+                for (int i = 0; i < cell.NodesIndex.Length; i++)
+                {
+                    //Debug.WriteLine("=============================");
+                    //Debug.WriteLine($"{cell.NodesIndex[i]}");
+                    int from = cell.NodesIndex[i];
+                    int to = this.NodeIndexCorrespond[from];
+                    cell.NodesIndex[i] = to;
+                    //Debug.WriteLine($"{cell.NodesIndex[i]}");
+                }
+            }
+        }
+        public MeshSurfaceAndPrismLayer MakeMeshNeed()
+        {
+            MeshSurfaceAndPrismLayer mesh = new MeshSurfaceAndPrismLayer();
+            mesh.Nodes = this.NodesNeed;
+            mesh.Cells = this.CellsNeed;
+            mesh.PhysicalInfos = this.PhysicalInfos;
+            mesh.EntityInfos = this.EntityInfos;
+            return mesh;
+        }
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="cellsOfSOMETHING"></param>
+        /// <returns></returns>
+        private List<EntityInfo> DeriveEntityInfos(List<Cell> cellsOfSOMETHING)
+        {
+            var entityInfo = new List<EntityInfo>();
+            var SOMETHINGEntityIDHashSet = new HashSet<int>();
+            foreach (var cell in cellsOfSOMETHING)
+            {
+                SOMETHINGEntityIDHashSet.Add(cell.EntityID);
+            }
+            int numberOfEntityIDs = SOMETHINGEntityIDHashSet.Count;
+            var somethingEntityIDsList = new List<int>(SOMETHINGEntityIDHashSet);
+            int triangleFaceNumber = 0;
+            foreach (var (eid, index) in SOMETHINGEntityIDHashSet.Select((eid, index) => (eid, index)))
+            {
+                var einf = new EntityInfo();
+                float[] X = new float[numberOfEntityIDs];
+                float[] Y = new float[numberOfEntityIDs];
+                float[] Z = new float[numberOfEntityIDs];
+                float[] nX = new float[numberOfEntityIDs];
+                float[] nY = new float[numberOfEntityIDs];
+                float[] nZ = new float[numberOfEntityIDs];
+                int[] numberOfElements = new int[numberOfEntityIDs];
+                HashSet<int> nodeIDs = new HashSet<int>();
+                HashSet<int> elementsIDs = new HashSet<int>();
+                float x = 0;
+                float y = 0;
+                float z = 0;
+                float n_x = 0;
+                float n_y = 0;
+                float n_z = 0;
+                bool triangleFaceFlag = false;
+                for (int i = 0; i < cellsOfSOMETHING.Count; i++)
+                {
+                    if (cellsOfSOMETHING[i].EntityID == eid)
+                    {
+                        einf.CellType = CellType.Triangle;
+                        elementsIDs.Add(i);
+                        if (cellsOfSOMETHING[i].CellType == CellType.Triangle)
+                        {
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[0] - 1);
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[1] - 1);
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[2] - 1);
+
+                            var coordinates0 = cellsOfSOMETHING[i].NodesIndex[0] - 1;
+                            var coordinates1 = cellsOfSOMETHING[i].NodesIndex[1] - 1;
+                            var coordinates2 = cellsOfSOMETHING[i].NodesIndex[2] - 1;
+
+                            float[] vertex0xyz = new float[]
+                            {
+                                this.Nodes[coordinates0].X,
+                                this.Nodes[coordinates0].Y,
+                                this.Nodes[coordinates0].Z,
+                            };
+                            float[] vertex1xyz = new float[]
+                            {
+                                this.Nodes[coordinates1].X,
+                                this.Nodes[coordinates1].Y,
+                                this.Nodes[coordinates1].Z,
+                            };
+                            float[] vertex2xyz = new float[]
+                            {
+                                this.Nodes[coordinates2].X,
+                                this.Nodes[coordinates2].Y,
+                                this.Nodes[coordinates2].Z,
+                            };
+                            var unitNormalVector = UnitNormalVector(vertex0xyz, vertex1xyz, vertex2xyz);
+                            x += (vertex0xyz[0] + vertex1xyz[0] + vertex2xyz[0]) / 3;
+                            y += (vertex0xyz[1] + vertex1xyz[1] + vertex2xyz[1]) / 3;
+                            z += (vertex0xyz[2] + vertex1xyz[2] + vertex2xyz[2]) / 3;
+                            n_x += unitNormalVector[0];
+                            n_y += unitNormalVector[1];
+                            n_z += unitNormalVector[2];
+                            triangleFaceFlag = true;
+                        }
+                        else if (cellsOfSOMETHING[i].CellType == CellType.Quadrilateral)
+                        {
+                            einf.CellType = CellType.Quadrilateral;
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[0] - 1);
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[1] - 1);
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[2] - 1);
+                            nodeIDs.Add(cellsOfSOMETHING[i].NodesIndex[3] - 1);
+
+                            var coordinates0 = cellsOfSOMETHING[i].NodesIndex[0] - 1;
+                            var coordinates1 = cellsOfSOMETHING[i].NodesIndex[1] - 1;
+                            var coordinates2 = cellsOfSOMETHING[i].NodesIndex[2] - 1;
+                            var coordinates3 = cellsOfSOMETHING[i].NodesIndex[3] - 1;
+                            float[] vertex0xyz = new float[]
+                            {
+                                this.Nodes[coordinates0].X,
+                                this.Nodes[coordinates0].Y,
+                                this.Nodes[coordinates0].Z,
+                            };
+                            float[] vertex1xyz = new float[]
+                            {
+                                this.Nodes[coordinates1].X,
+                                this.Nodes[coordinates1].Y,
+                                this.Nodes[coordinates1].Z,
+                            };
+                            float[] vertex2xyz = new float[]
+                            {
+                                this.Nodes[coordinates2].X,
+                                this.Nodes[coordinates2].Y,
+                                this.Nodes[coordinates2].Z
+                            };
+                            float[] vertex3xyz = new float[]
+                            {
+                                this.Nodes[coordinates3].X,
+                                this.Nodes[coordinates3].Y,
+                                this.Nodes[coordinates3].Z,
+                            };
+                            var unitNormalVector = UnitNormalVector(vertex0xyz, vertex1xyz, vertex3xyz);
+                            x += (vertex0xyz[0] + vertex1xyz[0] + vertex2xyz[0] + vertex3xyz[0]) / 4;
+                            y += (vertex0xyz[1] + vertex1xyz[1] + vertex2xyz[1] + vertex3xyz[1]) / 4;
+                            z += (vertex0xyz[2] + vertex1xyz[2] + vertex2xyz[2] + vertex3xyz[2]) / 4;
+                            n_x += unitNormalVector[0];
+                            n_y += unitNormalVector[1];
+                            n_z += unitNormalVector[2];
+                        }
+                        numberOfElements[index] += 1;
+                    }
+                }
+                if (triangleFaceFlag == true)
+                {
+                    triangleFaceNumber += 1;
+                }
+                X[index] = x / numberOfElements[index];
+                Y[index] = y / numberOfElements[index];
+                Z[index] = z / numberOfElements[index];
+                nX[index] = n_x / numberOfElements[index];
+                nY[index] = n_y / numberOfElements[index];
+                nZ[index] = n_z / numberOfElements[index];
+
+                einf.EntityID = eid;
+                einf.CenterLocationX = X[index];
+                einf.CenterLocationY = Y[index];
+                einf.CenterLocationZ = Z[index];
+                einf.NormalVector = new float[] { nX[index], nY[index], nZ[index] };
+                einf.NumberOfElements = numberOfElements[index];
+                einf.ContainedNodes = nodeIDs;
+                einf.ContainedElements = elementsIDs;
+                CalculateEntityRadius(einf);
+
+                entityInfo.Add(einf);
+            }
+
+            return entityInfo;
+        }
+        /// <summary>
+        /// Entityに半径を求める
+        /// Entity.CenterLocationとEntityに属するnodeの距離を求め、最も距離が大きいものが半径としている
+        /// 延長する長さを指定するときに利用する
+        /// </summary>
+        /// <param name="entityInfo"></param>
+        private void CalculateEntityRadius(EntityInfo entityInfo)
+        {
+            float maxLength = float.MinValue;
+            foreach (var n in entityInfo.ContainedNodes)
+            {
+                int index = n;
+                float x = this.Nodes[index].X;
+                float y = this.Nodes[index].Y;
+                float z = this.Nodes[index].Z;
+                float tmpLength = (float)Math.Sqrt((x - entityInfo.CenterLocationX) * (x - entityInfo.CenterLocationX) + (y - entityInfo.CenterLocationY) * (y - entityInfo.CenterLocationY) + (z - entityInfo.CenterLocationZ) * (z - entityInfo.CenterLocationZ));
+                if (tmpLength > maxLength)
+                {
+                    maxLength = tmpLength;
+                }
+            }
+            entityInfo.Radius = maxLength;
+        }
+        /// <summary>
+        /// 単位法線ベクトルの計算
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        private float[] UnitNormalVector(float[] a, float[] b, float[] c)
+        {
+            float[] v0v1 = new float[] {
+                                            b[0] - a[0],
+                                            b[1] - a[1],
+                                            b[2] - a[2]
+                                        };
+            float[] v0v2 = new float[] {
+                                            c[0] - a[0],
+                                            c[1] - a[1],
+                                            c[2] - a[2]
+                                        };
+            float[] normalVector = OuterProduct(v0v1, v0v2);
+            float length = (float)Math.Sqrt(Math.Pow(normalVector[0], 2) + Math.Pow(normalVector[1], 2) + Math.Pow(normalVector[2], 2));
+            float[] unitNormalVector = new float[] { normalVector[0] / length, normalVector[1] / length, normalVector[2] / length };
+            return unitNormalVector;
+        }
+        /// <summary>
+        /// 外積計算
+        /// </summary>
+        /// <param name="vector0"></param>
+        /// <param name="vector1"></param>
+        /// <returns></returns>
+        private float[] OuterProduct(float[] vector0, float[] vector1)
+        {
+            return new float[]
+            {
+                vector0[1] * vector1[2] - vector0[2] * vector1[1],
+                vector0[2] * vector1[0] - vector0[0] * vector1[2],
+                vector0[0] * vector1[1] - vector0[1] * vector1[0]
+            };
+        }
+
+        private List<HashSet<int>> MakeSOMETHINGCellHashSet(List<Cell> cells, HashSet<int> hashSet)
+        {
+            List<HashSet<int>> listHashSet = new List<HashSet<int>>();
+            foreach (var hS in hashSet)
+            {
+                var tmpHashSet = new HashSet<int>();
+                foreach (var cell in cells)
+                {
+                    if (cell.EntityID == hS)
+                    {
+                        for (int i = 0; i < cell.NodesIndex.Length; i++)
+                        {
+                            tmpHashSet.Add(cell.NodesIndex[i]);
+                        }
+                    }
+                }
+                listHashSet.Add(tmpHashSet);
+            }
+            return listHashSet;
+        }
+        /// <summary>
+        /// SOMETHINGであるcellを求める
+        /// </summary>
+        /// <param name="cells"></param>
+        /// <returns></returns>
+        private List<Cell> ExtractCellsOfSOMETHING(List<Cell> cells)
+        {
+            var SOMETHINGPhysicalID = DetectSOMETHINGPhysicalID(cells);
+            List<Cell> cellsOfSOMETHINGPhysicalID = new List<Cell>();
+            foreach (var cell in cells)
+            {
+                if (cell.PhysicalID == SOMETHINGPhysicalID)
+                {
+                    cellsOfSOMETHINGPhysicalID.Add(cell);
+                }
+            }
+
+            MakeEntityIDHashSet(cellsOfSOMETHINGPhysicalID);
+
+            return cellsOfSOMETHINGPhysicalID;
+        }
+        /// <summary>
+        /// SOMETHINGのPhysicalIDを特定する
+        /// </summary>
+        /// <param name="cells"></param>
+        /// <returns></returns>
+        private int DetectSOMETHINGPhysicalID(List<Cell> cells)
+        {
+            int somethingPhysicalID = 0;
+            foreach (var p in this.PhysicalInfos)
+            {
+                if (p.Name == "SOMETHING")
+                {
+                    somethingPhysicalID = p.ID;
+                }
+            }
+            return somethingPhysicalID;
+        }
+        /// <summary>
+        /// SOMETHINGが割り振られているEntityIDを求める
+        /// triangleとquadrilateralで分ける
+        /// </summary>
+        /// <param name="cells"></param>
+        private void MakeEntityIDHashSet(List<Cell> cells)
+        {
+            HashSet<int> SOMETHINGEntityIDTriangleHashSet = new HashSet<int>();
+            HashSet<int> SOMETHINGEntityIDQuadrilateralHashSet = new HashSet<int>();
+            foreach (var cell in cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    SOMETHINGEntityIDTriangleHashSet.Add(cell.EntityID);
+                }
+                else if (cell.CellType == CellType.Quadrilateral)
+                {
+                    SOMETHINGEntityIDQuadrilateralHashSet.Add(cell.EntityID);
+                }
+
+            }
+            this.SOMETHINGEntityIDTriangleHashSet = SOMETHINGEntityIDTriangleHashSet;
+            this.SOMETHINGEntityIDQuadrilateralHashSet = SOMETHINGEntityIDTriangleHashSet;
+        }
+
+
+
     }
 
 

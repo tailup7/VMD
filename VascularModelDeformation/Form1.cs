@@ -98,5 +98,84 @@ namespace VascularModelDeformation
             this.IO.WritePLY(stl, this.DirPath, @"test.ply");
             // this.IO.WriteVTKPolydataCenterline(centerline, this.DirPath, 0);
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine($"test");
+            LocalPath lp = new LocalPath();
+            // usingを使うことで、usingを抜けるときにDisposeが動いて、メモリの破棄を行う
+            using (var model = new Model())
+            {
+                (model.Centerline, this.DirPath) = this.IO.ReadCenterline();
+                if (model.Centerline == null)
+                    return;
+                (model.CenterlineFinalPosition, this.DirPath) = this.IO.ReadCenterline();
+                string test = this.DirPath;
+                model.CalculateCenterlineAndCenterlineFinalPositoin(); // ここでCenterlineとCenterlineFinalPositionのデータを用いて回転行列などを求める
+                // this.IO.WriteVTKPolydataCenterline(model.Centerline, test, 0);
+                // this.IO.WriteVTKPolydataCenterline(model.CenterlineFinalPosition, test, 1);
+                model.SurfaceCorrespondIndex = this.IO.ReadPLY();
+                (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
+                model.Mesh.AnalyzeMesh();
+
+                model.Mesh.FetchPrismLayerData();
+                model.Mesh.SetCellCorrespondCenterlineIndex(model.SurfaceCorrespondIndex);
+                //model.Mesh.AssignFaceCorrespondIndexToNodeCorrespondIndex();
+                model.Mesh.AssignFaceCorrespondIndexToNodeCorrespondIndexList();
+
+                model.OrganizeMeshData();
+                model.RemoveUnneedPartMesh();
+                model.Mesh.AnalyzeMesh();
+                model.MeshSurfaceAndPrismLayer.AnalyzeMesh();
+                model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.Mesh); // これだと変形前だよね
+                model.MeshInnerSurface = model.Mesh.MakeInnerSurfaceMesh(model.Mesh);
+                // this.IO.WriteVTKSurfaceWithCorrespondIndex(model.MeshOuterSurface, test, "MostOuterSurface-before.vtk");
+                //model.MeshDeformation(model.MeshSurfaceAndPrismLayer, model.Centerline);
+                model.MeshDeformationMultiple(model.MeshSurfaceAndPrismLayer, model.Centerline);
+                // this.IO.WriteVTKMesh(model.MeshSurfaceAndPrismLayer, test, "eeeeeeeeeeeeeeeee.vtk");
+                model.MeshSurfaceAndPrismLayer.AllEdgeSwap();
+                model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.MeshSurfaceAndPrismLayer); // これだと変形後のものが吐き出せる
+                // this.IO.WriteSTL(model.MeshSurfaceAndPrismLayer, test, "MostOuterSurface.stl");
+                // this.IO.WriteVTKSurfaceWithCorrespondIndex(model.MeshOuterSurface, test, "MostOuterSurface.vtk");
+                // this.IO.WriteSTLInnerSurfaceFromCellsMostInnerPrism(model.MeshSurfaceAndPrismLayer, test, "MostInnerSurface.stl");
+                // this.IO.WriteGMSH22(model.MeshSurfaceAndPrismLayer, test, "MeshNeed.msh");
+
+                ProcessStartInfo start = new ProcessStartInfo();
+                start.FileName = lp.PythonEnvironmentPath;
+                string pythonPath = lp.MakeInnerMeshPath;
+
+                string firstArgument = pythonPath;
+                string secondArgument = Path.Combine(test, "MostInnerSurface.stl");
+                string thirdArgument = Path.Combine(test, "MeshInner.msh");
+                string fourthArgument = Path.Combine(test, "MeshInner.vtk");
+                start.Arguments = firstArgument + " " + secondArgument + " " + thirdArgument + " " + fourthArgument;
+                start.UseShellExecute = false;
+                start.RedirectStandardOutput = true;
+                using (Process process = Process.Start(start))
+                {
+                    using (StreamReader reader = process.StandardOutput)
+                    {
+                        string result = reader.ReadToEnd();
+                        Debug.WriteLine(result);
+                    }
+                }
+
+                (model.MeshInner, this.DirPath) = this.IO.ReadGMSH22Inner();
+                model.OrganizeMeshDataInner();
+                model.MeshInner.AnalyzeMesh();
+                //this.IO.WriteGMSH22(model.MeshInner, this.DirPath, "MeshInnerTest.msh");
+                model.MakeMergeMesh();
+                model.MeshMerged.Cells.Sort();
+                for (int j = 0; j < model.MeshMerged.Cells.Count; j++)
+                {
+                    model.MeshMerged.Cells[j].Index = j + 1;
+                }
+
+                this.IO.WriteGMSH22(model.MeshMerged, this.DirPath, "MeshMerged.msh");
+                // this.IO.WriteVTKMesh(model.MeshMerged, this.DirPath, "MeshMerged.vtk");
+                // this.IO.WriteCSVCellQuality(model.MeshMerged, this.DirPath);
+            }
+            GC.Collect();
+        }
     }
 }

@@ -1,0 +1,2 @@
+C:\git\VMD\venv\Scripts\python
+C:\git\VMD\assets\makemesh_inner.py

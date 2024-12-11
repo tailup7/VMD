@@ -120,6 +120,92 @@ namespace VascularModelDeformation
 
 
 
+        public List<int> ReadPLY()
+        {
+            string dirPath = null;
+            string fileName = null;
+            string[] lines = null;
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "ply file|*.ply";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Debug.WriteLine($"{ofd.FileName}");
+                    dirPath = Path.GetDirectoryName(ofd.FileName);
+                    fileName = Path.GetFileName(ofd.FileName);
+                    lines = File.ReadAllLines(ofd.FileName);
+                }
+            }
+            List<int> correspondIndexList = ReadPLY(dirPath, fileName);
+            return correspondIndexList;
+        }
+        public List<int> ReadPLY(string filePath)
+        {
+            Debug.WriteLine($"ReadPLY");
+            List<Triangle> triangles = new List<Triangle>();
+            using (StreamReader sr = new StreamReader(filePath))
+            {
+                string line = null;
+                int vertexCount = 0;
+                int faceCount = 0;
+                List<Node> nodes = new List<Node>();
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line.StartsWith("element vertex"))
+                    {
+                        vertexCount = int.Parse(line.Split(' ')[2]);
+                    }
+                    else if (line.StartsWith("element face"))
+                    {
+                        faceCount = int.Parse(line.Split(' ')[2]);
+                    }
+                    else if (line == "end_header")
+                    {
+                        Debug.WriteLine($"{line}");
+                        for (int i = 0; i < vertexCount; i++)
+                        {
+                            string[] vertexLine = sr.ReadLine().Split(' ');
+                            float x = float.Parse(vertexLine[0]);
+                            float y = float.Parse(vertexLine[1]);
+                            float z = float.Parse(vertexLine[2]);
+                            Node node = new Node(x, y, z);
+                            nodes.Add(node);
+                        }
+                        for (int i = 0; i < faceCount; i++)
+                        {
+                            string[] faceLine = sr.ReadLine().Split(' ');
+                            int dummy = int.Parse(faceLine[0]);
+                            int n0 = int.Parse(faceLine[1]);
+                            int n1 = int.Parse(faceLine[2]);
+                            int n2 = int.Parse(faceLine[3]);
+                            int correspondCenterlineIndex = int.Parse(faceLine[4]);
+                            Triangle triangle = new Triangle(i, nodes[n0], nodes[n1], nodes[n2], correspondCenterlineIndex);
+                            triangles.Add(triangle);
+                        }
+                    }
+                }
+            }
+            STL stl = new STL(triangles);
+            Debug.WriteLine($"{stl.Nodes.Count}");
+            List<int> surfaceCorrespondIndex = new List<int>();
+            foreach (var triangle in stl.Triangles)
+            {
+                surfaceCorrespondIndex.Add(triangle.CorrespondCenterlineIndex);
+            }
+            return surfaceCorrespondIndex;
+        }
+        public List<int> ReadPLY(string dirPath, string fileName)
+        {
+            Debug.WriteLine($"ReadPLY");
+            string filePath = Path.Combine(dirPath, fileName);
+            var surfaceCorrespondIndex = this.ReadPLY(filePath);
+            return surfaceCorrespondIndex;
+        }
+
+
+
+
+
 
 
 
@@ -403,6 +489,62 @@ namespace VascularModelDeformation
 
 
 
+
+
+        public void WriteGMSH22(Mesh mesh, string dirPath, string fileName)   // 2131
+        {
+            Debug.WriteLine($"WriteGMSH22");
+            Debug.WriteLine($"{dirPath}");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            mesh.PhysicalInfos.Sort();
+            using (var sw = new StreamWriter(filePath))
+            {
+                sw.WriteLine($"$MeshFormat");
+                sw.WriteLine($"2.2 0 8");
+                sw.WriteLine($"$EndMeshFormat");
+                sw.WriteLine($"$PhysicalNames");
+                sw.WriteLine($"{mesh.PhysicalInfos.Count}");
+                foreach (var physical in mesh.PhysicalInfos)
+                {
+                    sw.WriteLine($"{physical.Dimension} {physical.ID} \"{physical.Name}\"");
+                }
+                sw.WriteLine($"$EndPhysicalNames");
+                sw.WriteLine($"$Nodes");
+                sw.WriteLine($"{mesh.Nodes.Count}");
+                foreach (var node in mesh.Nodes)
+                {
+                    sw.WriteLine($"{node.Index + 1} {node.X} {node.Y} {node.Z}");
+                }
+                sw.WriteLine($"$EndNodes");
+                sw.WriteLine($"$Elements");
+                sw.WriteLine($"{mesh.Cells.Count}");
+                int wholeIndex = 1;
+                foreach (var cell in mesh.Cells)
+                {
+                    string line = $"";
+                    line += $"{wholeIndex} ";
+                    line += $"{(int)cell.CellType} ";
+                    line += $"{(int)cell.Dummy} ";
+                    line += $"{cell.PhysicalID} ";
+                    line += $"{cell.EntityID} ";
+                    for (int j = 0; j < cell.NodesIndex.Length; j++)
+                    {
+                        if (j == cell.NodesIndex.Length - 1)
+                        {
+                            line += $"{cell.NodesIndex[j]}";
+                        }
+                        else
+                        {
+                            line += $"{cell.NodesIndex[j]} ";
+                        }
+                    }
+                    wholeIndex++;
+                    sw.WriteLine(line);
+                }
+                sw.WriteLine($"$EndElements");
+            }
+        }
 
     }
 }
