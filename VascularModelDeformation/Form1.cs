@@ -42,6 +42,9 @@ namespace VascularModelDeformation
             Console.WriteLine("   Minor: {0}", os.Version.Minor);
             Console.WriteLine("Service Pack: '{0}'", os.ServicePack);
             Console.WriteLine(RuntimeInformation.FrameworkDescription);
+
+            this.LP = new LocalPath();
+            this.IO = new IO();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -73,6 +76,7 @@ namespace VascularModelDeformation
             }
 
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
             Model model = new Model();
