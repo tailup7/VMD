@@ -12,14 +12,14 @@ namespace VascularModelDeformation
         /// </summary>
         public int Dimension { get; set; }
         /// <summary>
-        ///　境界条件のID
+        ///　境界条件のID (physical number)
         ///　2次元の場合は10~99
         ///　3次元の場合は100~
         ///　WALL 10
         ///　INLET 11
         ///　OUTLET 12
-        ///　SOMETHING 99
-        ///　INTERNAL 100
+        ///　SOMETHING 99 (基本無い)
+        ///　INTERNAL 100 
         /// </summary>
         public int ID { get; set; }
         /// <summary>
