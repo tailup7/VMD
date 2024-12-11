@@ -644,6 +644,258 @@ namespace VascularModelDeformation
                 line[10]
             };
         }
+    }
+
+
+
+
+    [Serializable]
+    public class MeshPrism : Mesh
+    {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public MeshPrism()
+        {
+            Debug.WriteLine($"PrismLayerMesh() constructor");
+        }
+    }
+
+    [Serializable]
+    public class MeshInner : Mesh
+    {
+        public override List<List<Cell>> CellsEachPrismLayer { get; set; }
+        public override List<Cell> CellsPrismLayer { get; set; }
+        public override List<Cell> CellsMostInnerPrismLayer { get; set; }
+        public override List<Cell> CellsTetra { get; set; }
+        public override List<Cell> CellsWall { get; set; }
+        public override List<Cell> CellsInnerWall { get; set; }
+        public override List<Cell> CellsInletQuadrilateral { get; set; }
+        public override List<Cell> CellsOutletQuadrilateral { get; set; }
+        public override int NumberOfPrismLayerCells { get; set; }
+        public override int NumberOfMostInnerPrismLayerCells { get; set; }
+        public override int NumberOfInnerWallCells { get; set; }
+        public override int NumberOfInletQuadrilateralCells { get; set; }
+        public override int NumberOfOutletQuadrilateralCells { get; set; }
+        public override int NumberOfLayer { get; set; }
+        public MeshInner()
+        {
+            Debug.WriteLine($"InnerMesh() constructor");
+        }
+
+        public MeshInner(string[] lines)
+        {
+            Debug.WriteLine($"Mesh(string[] lines) constructor");
+            // 素の.mshファイルに関して取得できる情報を登録---------------------------------------------------
+            LoadMesh(lines);
+            // 元の.mshファイルに関して取得できる情報を登録終了---------------------------------------------------
+        }
+
+        public override void LoadMesh(string[] lines)
+        {
+            if (lines == null)
+                return;
+
+            int[][] elements = null;
+            Dictionary<int, string> PhysicalNamesCorrespondence = null;
+            var physicalInfos = new List<PhysicalInfo>();
+            // Interpret lines.
+            for (int currentLine = 0; currentLine < lines.Length; currentLine++)
+            {
+                if (lines[currentLine] == "$MeshFormat")
+                {
+                    //Debug.WriteLine("This is MeshFormat.");
+                    currentLine += 2;
+                }
+                else if (lines[currentLine] == "$PhysicalNames")
+                {
+                    // TODO: PhysicalNamesが定義されていないときには対応できていない
+                    currentLine += 1;
+                    var physicalNameNumber = int.Parse(lines[currentLine]);
+                    PhysicalNamesCorrespondence = new Dictionary<int, string>();
+                    for (int index = 0; index < physicalNameNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] cols = lines[currentLine].Split(' ');
+                        var dimension = int.Parse(cols[0]);
+                        var id = int.Parse(cols[1]);
+                        var name = cols[2].Replace("\"", "");
+                        PhysicalNamesCorrespondence.Add(id, name);
+                        PhysicalInfo physicalInfo = new PhysicalInfo(dimension, id, name);
+                        physicalInfos.Add(physicalInfo);
+                    }
+                }
+                else if (lines[currentLine] == "$Nodes")
+                {
+                    //Debug.WriteLine($"Nodes");
+                    currentLine += 1;
+                    var nodesNumber = int.Parse(lines[currentLine]);
+                    this.Nodes = new List<Node>();
+                    for (int index = 0; index < nodesNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] cols = lines[currentLine].Split(' ');
+                        float x = float.Parse(cols[1]);
+                        float y = float.Parse(cols[2]);
+                        float z = float.Parse(cols[3]);
+                        Node node = new Node(index, x, y, z);
+                        this.Nodes.Add(node);
+                    }
+                }
+                else if (lines[currentLine] == "$Elements")
+                {
+                    currentLine += 1;
+                    var elementsNumber = int.Parse(lines[currentLine]);
+                    elements = new int[elementsNumber][];
+                    for (int index = 0; index < elementsNumber; index++)
+                    {
+                        currentLine += 1;
+                        string[] splittedLine = lines[currentLine].Split(' ');
+                        var array = new int[splittedLine.Length];
+                        for (int c = 0; c < splittedLine.Length; c++)
+                        {
+                            array[c] = int.Parse(splittedLine[c]);
+                        }
+                        elements[index] = array;
+                    }
+                }
+            }
+            if (elements == null)
+            {
+                //Debug.WriteLine("No ---------------");
+            }
+            this.Cells = base.MakeCells(elements);
+            this.PhysicalInfos = physicalInfos;
+        }
+
+        public override void AnalyzeMesh()
+        {
+            Debug.WriteLine("AnalyzeMesh Done Nothing.");
+            GetNumberOfWALLCells();
+            GetNumberOfTetraCells();
+        }
+        /// <summary>
+        /// cellの種類と境界の番号でセル（エレメント）の要素数を調べて
+        /// 新しくList<Cell>を作る
+        /// </summary>
+        /// <param name="cellType"></param>
+        /// <param name="physicalID"></param>
+        /// <returns></returns>
+        public override (int, List<Cell>) GetNumberOfCells(CellType cellType, int physicalID)
+        {
+            int num = 0;
+            List<Cell> cells = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == cellType && cell.PhysicalID == physicalID)
+                {
+                    cells.Add(cell);
+                    num++;
+                }
+            }
+            return (num, cells);
+        }
+        public override void GetNumberOfLayer()
+        {
+            int numberOfLayer = 0;
+            numberOfLayer = this.NumberOfPrismLayerCells / this.NumberOfWallCells;
+            this.NumberOfLayer = numberOfLayer;
+        }
+        public override void GetNumberOfWALLCells()
+        {
+            (var numberOfWallCells, List<Cell> cellsWall) = GetNumberOfCells(CellType.Triangle, 90);
+            this.NumberOfWallCells = numberOfWallCells;
+            this.CellsWall = cellsWall;
+        }
+        public override void GetNumberOfInnerWallCells()
+        {
+            (var numberOfInnerWallCells, List<Cell> cellsInnerWall) = GetNumberOfCells(CellType.Triangle, 90);
+            this.NumberOfInnerWallCells = numberOfInnerWallCells;
+            this.CellsInnerWall = cellsInnerWall;
+        }
+        public override void GetNumberOfTetraCells()
+        {
+            (var numberOfTetrahedronCells, List<Cell> cellsTetra) = GetNumberOfCells(CellType.Tetrahedron, 100);
+            this.NumberOfTetrahedronCells = numberOfTetrahedronCells;
+            this.CellsTetra = cellsTetra;
+        }
+        public override void GetNumberOfPrismLayerCells()
+        {
+            (var numberOfPrismLayerCells, List<Cell> cellsPrismLayer) = GetNumberOfCells(CellType.Prism, 100);
+            this.NumberOfPrismLayerCells = numberOfPrismLayerCells;
+            this.CellsPrismLayer = cellsPrismLayer;
+        }
+        public override void GetNumberOfMostInnerPrismLayer()
+        {
+            if (this.SurfaceCellCorrespondPrismCells.Count == 0)
+                return;
+
+            int numberOfLayer = this.SurfaceCellCorrespondPrismCells[0].Count - 1;
+            Debug.WriteLine("====================================");
+            Debug.WriteLine($"{numberOfLayer}");
+            Debug.WriteLine("====================================");
+            int numberOfPrismLayer = 0;
+            int numberOfMostInnerCells = 0;
+            List<Cell> cellsMostInnerPrismLayer = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == CellType.Prism)
+                {
+                    numberOfPrismLayer++;
+                    if (numberOfPrismLayer % numberOfLayer == 0)
+                    {
+                        cellsMostInnerPrismLayer.Add(cell);
+                        numberOfMostInnerCells++;
+                    }
+                }
+            }
+            this.NumberOfMostInnerPrismLayerCells = numberOfMostInnerCells;
+            this.CellsMostInnerPrismLayer = cellsMostInnerPrismLayer;
+            Debug.WriteLine($"NumberOfMostInnerPrismLayerCells : {this.NumberOfMostInnerPrismLayerCells}");
+        }
+        public override void GetNumberOfInletQuadrilateralCells()
+        {
+            (var numberOfInletQuadrilateralCells, List<Cell> cellsInletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 11);
+            this.NumberOfInletQuadrilateralCells = numberOfInletQuadrilateralCells;
+            this.CellsInletQuadrilateral = cellsInletQuadrilateral;
+        }
+        public override void GetNumberOfOutletQuadrilateralCells()
+        {
+            (var numberOfOutletQuadrilateralCells, List<Cell> cellsOutletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 12);
+            this.NumberOfOutletQuadrilateralCells = numberOfOutletQuadrilateralCells;
+            this.CellsOutletQuadrilateral = cellsOutletQuadrilateral;
+        }
+        public override void SplitPrismLayersIntoEachPrismLayer()
+        {
+            if (this.NumberOfWallCells == 0)
+                return;
+
+            int numberOfWallCells = this.NumberOfWallCells;
+            int numberOfPrismLayerCells = this.NumberOfPrismLayerCells;
+            int numberOfLayer = (int)(numberOfPrismLayerCells / numberOfWallCells);
+            this.NumberOfLayer = numberOfLayer;
+            Debug.WriteLine($"{numberOfLayer}");
+
+            this.CellsEachPrismLayer = new List<List<Cell>>();
+            for (int i = 0; i < numberOfLayer; i++)
+            {
+                this.CellsEachPrismLayer.Add(new List<Cell>());
+            }
+            int counter = 0;
+            foreach (var cell in this.CellsPrismLayer)
+            {
+                if (cell.CellType == CellType.Prism)
+                {
+                    this.CellsEachPrismLayer[counter % this.NumberOfLayer].Add(cell);
+                    counter++;
+                }
+            }
+        }
+
+
+
+
+
 
 
     }

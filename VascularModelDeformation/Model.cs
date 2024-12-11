@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,6 +76,21 @@ namespace VascularModelDeformation
 
                 Disposed = true;
             }
+        }
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public Model()
+        {
+            Debug.WriteLine($"Model() constructor");
+        }
+        /// <summary>
+        /// destructor
+        /// </summary>
+        ~Model()
+        {
+            Debug.WriteLine($"Model() destructor");
+            Dispose(false);
         }
     }
 }

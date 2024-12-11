@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -18,6 +21,9 @@ namespace VascularModelDeformation
         private static extern bool AllocConsole();
         //#error version
         private string DirPath;
+
+        public IO IO { get; set; } 
+        private LocalPath LP { get; set; }
 
         public Form1()
         {
@@ -66,6 +72,13 @@ namespace VascularModelDeformation
                 MessageBox.Show($"Error executing Python script: {ex.Message}");
             }
 
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Model model = new Model();
+            (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
+            model.Mesh.AnalyzeMesh();
+            this.IO.WriteSTLWALLSurface(model.Mesh, this.DirPath);
         }
     }
 }
