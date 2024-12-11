@@ -18,3 +18,4 @@ C:\git\VMD\VascularModelDeformation\bin\Debug\WindowsFormsIntegration.dll
 C:\git\VMD\VascularModelDeformation\bin\Debug\System.Windows.Forms.xml
 C:\git\VMD\VascularModelDeformation\bin\Debug\WindowsFormsIntegration.xml
 C:\git\VMD\VascularModelDeformation\obj\Debug\Vascular.3EEA0BBD.Up2Date
+C:\git\VMD\VascularModelDeformation\bin\Debug\KdTreeLib.dll

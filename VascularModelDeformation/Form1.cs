@@ -84,5 +84,19 @@ namespace VascularModelDeformation
             model.Mesh.AnalyzeMesh();
             this.IO.WriteSTLWALLSurface(model.Mesh, this.DirPath);
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            List<Triangle> triangles = this.IO.ReadSTLASCII();
+            STL stl = new STL(triangles);
+            Centerline centerline = new Centerline();
+            (centerline, this.DirPath) = this.IO.ReadCenterline();
+
+            Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceTriangle(centerline.Nodes, triangles);
+
+            // this.IO.WriteVTKSTL(stl, this.DirPath, @"test.vtk");
+            this.IO.WritePLY(stl, this.DirPath, @"test.ply");
+            // this.IO.WriteVTKPolydataCenterline(centerline, this.DirPath, 0);
+        }
     }
 }

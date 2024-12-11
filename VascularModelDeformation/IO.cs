@@ -13,6 +13,33 @@ namespace VascularModelDeformation
 {
     public class IO
     {
+        // VTK Format
+        private const int VTK_LINE = 3;
+        private const int VTK_TRIANGLE = 5;
+        private const int VTK_QUAD = 9;
+        private const int VTK_TETRA = 10;
+        private const int VTK_WEDGE = 13;
+        // GMSH Mesh Format
+        private const int GMSH_LINE = 1;
+        private const int GMSH_TRIANGLE = 2;
+        private const int GMSH_QUAD = 3;
+        private const int GMSH_TETRA = 4;
+        private const int GMSH_PRISM = 6;
+        // FLUENT Mesh Format
+        private const int HEADER_COMMNET = 0;
+        private const int HEADER_POINTS = 10;
+        private const int HEADER_CELLS = 12;
+        private const int HEADER_FACES = 13;
+        private const int FLUENT_CELL_MIXED = 0;
+        private const int FLUENT_CELL_TETRAHEDRAL = 2;
+        private const int FLUENT_CELL_WEDGE = 6;
+        private const int FLUENT_FACE_MIXED = 0;
+        private const int FLUENT_FACE_TRIANGLE = 3;
+        private const int FLUNET_FACE_QUADRILATERAL = 4;
+        private const int FLUENT_BC_WALL = 3;
+        private const int FLUENT_BC_INLET = 4;
+        private const int FLUENT_BC_VELOCITY_INLET = 10;
+        private const int FLUENT_BC_OUTLET = 5;
         /// <summary>
         /// constructor
         /// </summary>
@@ -98,7 +125,226 @@ namespace VascularModelDeformation
 
 
 
+        /// <summary>
+        /// plyを出力する
+        /// ファイル名のデフォルトはWritePLY.ply
+        /// </summary>
+        /// <param name="stl"></param>
+        /// <param name="dirPath"></param>
+        public void WritePLY(STL stl, string dirPath)
+        {
+            WritePLY(stl, dirPath, "WritePLY.ply");
+        }
+        /// <summary>
+        /// plyを出力する
+        /// stlクラスを受け取って、
+        /// </summary>
+        /// <param name="stl"></param>
+        /// <param name="dirPath"></param>
+        /// <param name="fileName"></param>
+        public void WritePLY(STL stl, string dirPath, string fileName)
+        {
+            Debug.WriteLine($"WritePLY");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            using (StreamWriter sw = new StreamWriter(filePath))
+            {
+                string fixHeader = WritePLYFixHeader();
+                string vertexHeader = WritePLYVertexHeader(stl);
+                string faceHeader = WritePLYFaceHeader(stl);
+                string vertexList = WritePLYVertexList(stl);
+                string faceList = WritePLYFaceList(stl);
+                sw.Write(fixHeader);
+                sw.Write(vertexHeader);
+                sw.Write(faceHeader);
+                sw.Write(vertexList);
+                sw.Write(faceList);
+            }
+        }
+        private string WritePLYFixHeader()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ply").Append(Environment.NewLine);
+            sb.Append("format ascii 1.0").Append(Environment.NewLine);
+            sb.Append("comment author: onoue").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WritePLYVertexHeader(STL stl)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"element vertex {stl.Nodes.Count}").Append(Environment.NewLine);
+            sb.Append("property float x").Append(Environment.NewLine);
+            sb.Append("property float y").Append(Environment.NewLine);
+            sb.Append("property float z").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WritePLYFaceHeader(STL stl)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"element face {stl.Triangles.Count}").Append(Environment.NewLine);
+            sb.Append("property list uchar int vertex_indices").Append(Environment.NewLine);
+            sb.Append("property uchar face_correspond_node_index").Append(Environment.NewLine);
+            sb.Append("end_header").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WritePLYVertexList(STL stl)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var node in stl.Nodes)
+            {
+                sb.Append($"{node.X} {node.Y} {node.Z}").Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
+        private string WritePLYFaceList(STL stl)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var triangle in stl.Triangles)
+            {
+                sb.Append($"3 {triangle.NodeIndexes[0]} {triangle.NodeIndexes[1]} {triangle.NodeIndexes[2]} {triangle.CorrespondCenterlineIndex}").Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
 
+        /// <summary>
+        /// read centerline with openFileDialog
+        /// </summary>
+        public (Centerline, string) ReadCenterline()
+        {
+            Debug.WriteLine("ReadCenterLine");
+
+            string filePath = null;
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "centerline files|*.txt";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = ofd.FileName;
+                }
+                else
+                {
+                    return (null, null);
+                }
+            }
+            (Centerline centerline, string dirPath) = this.ReadCenterline(filePath);
+            return (centerline, dirPath);
+        }
+        /// <summary>
+        /// read centerline with string filePath
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public (Centerline, string) ReadCenterline(string filePath)
+        {
+            Debug.WriteLine($"ReadCenterline");
+            string dirPath = Path.GetDirectoryName(filePath);
+            string[] lines = File.ReadAllLines(filePath);
+            Centerline centerline = new Centerline();
+            centerline.InterpretCenterline(lines);
+            return (centerline, dirPath);
+        }
+
+
+
+
+
+
+
+
+        public List<Triangle> ReadSTLASCII()
+        {
+            string dirPath = null;
+            string stlFilePath = null;
+            string[] lines = null;
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "stl file|*.stl";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Debug.WriteLine($"{ofd.FileName}");
+                    dirPath = Path.GetDirectoryName(ofd.FileName);
+                    lines = File.ReadAllLines(ofd.FileName);
+                    stlFilePath = ofd.FileName;
+                }
+            }
+            List<Triangle> triangles = ReadSTLASCII(stlFilePath);
+            return triangles;
+        }
+        /// <summary>
+        /// read ascii stl
+        /// </summary>
+        /// <param name="stlFilePath"></param>
+        /// <returns></returns>
+        public List<Triangle> ReadSTLASCII(string stlFilePath)
+        {
+            List<Triangle> triangles = new List<Triangle>();
+
+            using (StreamReader reader = new StreamReader(stlFilePath))
+            {
+                string line;
+                int numberOfTriangles = 0;
+
+                // ファイルの先頭から"solid"が現れるまで読み込む
+                // 読み込んだ部分は無視するのでbreak
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.StartsWith("solid"))
+                    {
+                        break;
+                    }
+                }
+
+                // "facet"から始まる行を読み込んで、三角形を作成する
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.StartsWith("facet"))
+                    {
+                        // 法線ベクトルを読み込む
+                        string[] normalLine = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        float nx = float.Parse(normalLine[2]);
+                        float ny = float.Parse(normalLine[3]);
+                        float nz = float.Parse(normalLine[4]);
+
+                        // 三角形の頂点を読み込む
+                        line = reader.ReadLine();
+                        string[] vertexLine1 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        float x1 = float.Parse(vertexLine1[1]);
+                        float y1 = float.Parse(vertexLine1[2]);
+                        float z1 = float.Parse(vertexLine1[3]);
+
+                        string[] vertexLine2 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        float x2 = float.Parse(vertexLine2[1]);
+                        float y2 = float.Parse(vertexLine2[2]);
+                        float z2 = float.Parse(vertexLine2[3]);
+
+                        string[] vertexLine3 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        float x3 = float.Parse(vertexLine3[1]);
+                        float y3 = float.Parse(vertexLine3[2]);
+                        float z3 = float.Parse(vertexLine3[3]);
+
+                        // 三角形を作成してリストに追加する
+                        Triangle triangle = new Triangle(
+                            numberOfTriangles,
+                            new Node(x1, y1, z1),
+                            new Node(x2, y2, z2),
+                            new Node(x3, y3, z3)
+                        );
+                        triangles.Add(triangle);
+                        numberOfTriangles++;
+
+                        // "endfacet"まで読み込む
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (line.StartsWith("endfacet"))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return triangles;
+        }
         /// <summary>
         /// 三角形の単位法線ベクトルを求める
         /// </summary>
@@ -153,6 +399,10 @@ namespace VascularModelDeformation
                 sw.WriteLine($"endsolid surface");
             }
         }
+
+
+
+
 
     }
 }
