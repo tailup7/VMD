@@ -8,3 +8,13 @@ C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.csproj.Ge
 C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.csproj.CoreCompileInputs.cache
 C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.exe
 C:\git\VMD\VascularModelDeformation\obj\Debug\VascularModelDeformation.pdb
+C:\git\VMD\VascularModelDeformation\bin\Debug\Microsoft.WindowsAPICodePack.Core.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\Microsoft.WindowsAPICodePack.Sensors.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\Microsoft.WindowsAPICodePack.Shell.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\Microsoft.WindowsAPICodePack.ShellExtensions.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\System.Windows.Forms.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\WindowsFormsIntegration.dll
+C:\git\VMD\VascularModelDeformation\bin\Debug\System.Windows.Forms.xml
+C:\git\VMD\VascularModelDeformation\bin\Debug\WindowsFormsIntegration.xml
+C:\git\VMD\VascularModelDeformation\obj\Debug\Vascular.3EEA0BBD.Up2Date
