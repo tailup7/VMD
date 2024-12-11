@@ -489,6 +489,35 @@ namespace VascularModelDeformation
 
 
 
+        public void WriteSTLInnerSurfaceFromCellsMostInnerPrism(Mesh mesh, string dirPath, string fileName) //966
+        {
+            Debug.WriteLine($"WriteSTLMostInnerSurface");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            using (var sw = new StreamWriter(filePath))
+            {
+                sw.WriteLine($"solid surface from imai");
+                foreach (var cell in mesh.CellsMostInnerPrismLayer)
+                {
+                    if (cell.CellType == CellType.Prism)
+                    {
+                        Node node1 = mesh.Nodes[cell.NodesIndex[4] - 1];
+                        Node node2 = mesh.Nodes[cell.NodesIndex[5] - 1];
+                        Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                        float[] test = Utility.CrossProductNormal(node1, node2, node3);
+                        sw.WriteLine($"facet normal {test[0]} {test[1]} {test[2]}");
+                        sw.WriteLine($"  outer loop");
+                        sw.WriteLine($"    vertex {node1.X} {node1.Y} {node1.Z}");
+                        sw.WriteLine($"    vertex {node2.X} {node2.Y} {node2.Z}");
+                        sw.WriteLine($"    vertex {node3.X} {node3.Y} {node3.Z}");
+                        sw.WriteLine($"  endloop");
+                        sw.WriteLine($"endfacet");
+                    }
+                }
+                sw.WriteLine($"endsolid surface");
+            }
+        }
+
 
 
         public void WriteGMSH22(Mesh mesh, string dirPath, string fileName)   // 2131

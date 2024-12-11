@@ -137,8 +137,8 @@ namespace VascularModelDeformation
                 model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.MeshSurfaceAndPrismLayer); // これだと変形後のものが吐き出せる
                 // this.IO.WriteSTL(model.MeshSurfaceAndPrismLayer, test, "MostOuterSurface.stl");
                 // this.IO.WriteVTKSurfaceWithCorrespondIndex(model.MeshOuterSurface, test, "MostOuterSurface.vtk");
-                // this.IO.WriteSTLInnerSurfaceFromCellsMostInnerPrism(model.MeshSurfaceAndPrismLayer, test, "MostInnerSurface.stl");
-                // this.IO.WriteGMSH22(model.MeshSurfaceAndPrismLayer, test, "MeshNeed.msh");
+                this.IO.WriteSTLInnerSurfaceFromCellsMostInnerPrism(model.MeshSurfaceAndPrismLayer, test, "MostInnerSurface.stl");
+                this.IO.WriteGMSH22(model.MeshSurfaceAndPrismLayer, test, "MeshNeed.msh");
 
                 ProcessStartInfo start = new ProcessStartInfo();
                 start.FileName = lp.PythonEnvironmentPath;
@@ -176,6 +176,11 @@ namespace VascularModelDeformation
                 // this.IO.WriteCSVCellQuality(model.MeshMerged, this.DirPath);
             }
             GC.Collect();
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
