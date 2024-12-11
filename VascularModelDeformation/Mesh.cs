@@ -38,8 +38,9 @@ namespace VascularModelDeformation
         public virtual int NumberOfInnerWallCells { get; set; }
         public virtual int NumberOfInletQuadrilateralCells { get; set; }
         public virtual int NumberOfOutletQuadrilateralCells { get; set; }
-        public virtual int NumberOfLayer { get; set; }
-        public List<List<Cell>> SurfaceCellCorrespondPrismCells { get; set; } 
+        public virtual int NumberOfLayer { get; set; }      // これは固定値で、5層なら5, 6層なら6
+        public List<List<Cell>> SurfaceCellCorrespondPrismCells { get; set; } // 三角柱が6層程度重なったものを1つの List<Cell> だと考えて、それが血管表面を構成している
+                                                                              // と考えると、List<List<Cell>> の要素数は数万程度、その中のList<Cell> は5か6
         public int NumberOfTetrahedronCells { get; set; }
         public int NumberOfPrismCells { get; set; }
         public int NumberOfWallCells { get; set; }
@@ -98,6 +99,11 @@ namespace VascularModelDeformation
                 return (Mesh)bf.Deserialize(ms);
             }
         }
+        /// <summary>
+        /// WALL面の三角形パッチの集合を作る
+        /// </summary>
+        /// <param name="meshIn"></param>
+        /// <returns></returns>
         public MeshSurface MakeOuterSurface(Mesh meshIn)
         {
             MeshSurface meshOut = new MeshSurface();
@@ -115,6 +121,11 @@ namespace VascularModelDeformation
             }
             return meshOut;
         }
+        /// <summary>
+        /// プリズムメッシュの部分を除いた場合の、内側(テトラの部分のみ)の表面の三角形パッチの集まりを作る
+        /// </summary>
+        /// <param name="meshIn"></param>
+        /// <returns></returns>
         public MeshSurface MakeInnerSurfaceMesh(Mesh meshIn)
         {
             MeshSurface meshOut = new MeshSurface();
@@ -143,13 +154,28 @@ namespace VascularModelDeformation
                         Triangle triangle = new Triangle(meshOut.Nodes[d], meshOut.Nodes[f], meshOut.Nodes[e]);
                         meshOut.TriangleList.Add(triangle);
                     }
-                    allCounter++;
+                    allCounter++;    // 三角柱のindexの番号付けが、縦に外から数えるものだから、次のCells[i]は、ひとつ内側の三角柱
                 }
             }
             return meshOut;
         }
 
+        public virtual void AnalyzeMesh()
+        {
+            if (this.Cells == null)
+                return;
 
+            GetNumberOfWALLCells();
+            GetNumberOfInnerWallCells();
+            GetNumberOfTetraCells();
+            GetNumberOfPrismLayerCells();
+            GetNumberOfInletQuadrilateralCells();
+            GetNumberOfOutletQuadrilateralCells();
+            SplitPrismLayersIntoEachPrismLayer();
+            FetchPrismLayerData();
+            GetNumberOfMostInnerPrismLayer();
+            GetNumberOfLayer();
+        }
 
 
 
