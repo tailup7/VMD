@@ -518,8 +518,132 @@ namespace VascularModelDeformation
             this.Cells = MakeCells(elements);
             this.PhysicalInfos = physicalInfos;
         }
-
-
+        /// <summary>
+        /// MeshクラスのCells[]を作る
+        /// </summary>
+        /// <param name="cellsJugArray"></param>
+        /// <returns></returns>
+        protected List<Cell> MakeCells(int[][] cellsJugArray)
+        {
+            List<Cell> cells = new List<Cell>();
+            for (int i = 0; i < cellsJugArray.Length; i++)  
+            {
+                var line = cellsJugArray[i];
+                Cell cell = MakeCell(i, line);
+                cells.Add(cell);
+            }
+            return cells;
+        }
+        /// <summary>
+        /// Cellを作る
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public Cell MakeCell(int i, int[] line)
+        {
+            // ここで単体のCellを定義
+            // どのセルでも共通の情報
+            var cell = MakeCellCommon(i, line);
+            // CellTypeによってNodesIndexに保存する数が異なるので
+            // CellTypeによって場合分け
+            if (cell.CellType == CellType.Triangle)
+            {
+                MakeCellTriangle(cell, line);
+            }
+            else if (cell.CellType == CellType.Quadrilateral)
+            {
+                MakeCellQuadrilateral(cell, line);
+            }
+            else if (cell.CellType == CellType.Tetrahedron)
+            {
+                MakeCellTetrahedron(cell, line);
+            }
+            else if (cell.CellType == CellType.Prism)
+            {
+                MakeCellPrism(cell, line);
+            }
+            return cell;
+        }
+        /// <summary>
+        /// すべてのCellTypeに共通な部分はまとめた
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        private Cell MakeCellCommon(int i, int[] line)
+        {
+            var cell = new Cell()
+            {
+                Index = i,
+                CellType = (CellType)line[1],
+                Dummy = line[2],
+                PhysicalID = line[3],
+                EntityID = line[4]
+            };
+            return cell;
+        }
+        /// <summary>
+        /// Triangle型のCellを作る
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="line"></param>
+        private void MakeCellTriangle(Cell cell, int[] line)
+        {
+            cell.NodesIndex = new int[]
+            {
+                line[5],
+                line[6],
+                line[7]
+            };
+        }
+        /// <summary>
+        /// Quadrilateral型のCellを作る
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="line"></param>
+        private void MakeCellQuadrilateral(Cell cell, int[] line)
+        {
+            cell.NodesIndex = new int[]
+            {
+                line[5],
+                line[6],
+                line[7],
+                line[8]
+            };
+        }
+        /// <summary>
+        /// Tetrahedron型のCellを作る
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="line"></param>
+        private void MakeCellTetrahedron(Cell cell, int[] line)
+        {
+            cell.NodesIndex = new int[]
+            {
+                        line[5],
+                        line[6],
+                        line[7],
+                        line[8]
+            };
+        }
+        /// <summary>
+        /// Prism型のCellを作る
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="line"></param>
+        private void MakeCellPrism(Cell cell, int[] line)
+        {
+            cell.NodesIndex = new int[]
+            {
+                line[5],
+                line[6],
+                line[7],
+                line[8],
+                line[9],
+                line[10]
+            };
+        }
 
 
     }
@@ -537,5 +661,204 @@ namespace VascularModelDeformation
         public int NumberOfQuadCell { get; set; }
         public override int NumberOfLayer { get; set; }
         public List<Triangle> TriangleList { get; set; }
+    }
+
+    [Serializable]
+    public class MeshSurfaceAndPrismLayer : Mesh
+    {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public MeshSurfaceAndPrismLayer()
+        {
+            Debug.WriteLine($"SurfaceAndPrismLayerMesh() constructor");
+        }
+        /// <summary>
+        /// deepcopy
+        /// </summary>
+        /// <returns></returns>
+        public new MeshSurfaceAndPrismLayer DeepCopy()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(ms, this);
+                ms.Position = 0;
+                return (MeshSurfaceAndPrismLayer)bf.Deserialize(ms);
+            }
+        }
+
+        public override List<List<Cell>> CellsEachPrismLayer { get; set; }
+        public override List<Cell> CellsPrismLayer { get; set; }
+        public override List<Cell> CellsMostInnerPrismLayer { get; set; }
+        public override List<Cell> CellsTetra { get; set; }
+        public override List<Cell> CellsWall { get; set; }
+        public override List<Cell> CellsInnerWall { get; set; }
+        public override List<Cell> CellsInletQuadrilateral { get; set; }
+        public override List<Cell> CellsOutletQuadrilateral { get; set; }
+        public override int NumberOfPrismLayerCells { get; set; }
+        public override int NumberOfMostInnerPrismLayerCells { get; set; }
+        public override int NumberOfInnerWallCells { get; set; }
+        public override int NumberOfInletQuadrilateralCells { get; set; }
+        public override int NumberOfOutletQuadrilateralCells { get; set; }
+        public override int NumberOfLayer { get; set; }
+        public List<Triangle> TriangleList { get; set; }
+        public HalfEdge HalfEdge { get; set; } = new HalfEdge();
+
+        public void EdgeSwap()
+        {
+            foreach (var edge in HalfEdge.EdgeList)
+            {
+                if (edge.DoEdgeSwap)
+                {
+                    try
+                    {
+                        HalfEdge.EdgeSwapTrianglePrism(edge, this.Nodes, this.SurfaceCellCorrespondPrismCells);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine($"{e.Message}");
+                        Environment.Exit(0);
+                    }
+                }
+            }
+        }
+        public void AllEdgeSwap()
+        {
+            HalfEdge.Create(this.Nodes, this.CellsWall);
+            this.EdgeSwap();
+        }
+        public override void AnalyzeMesh()
+        {
+            Debug.WriteLine("AnalyzeMesh.");
+            GetNumberOfWALLCells();
+            GetNumberOfInnerWallCells();
+            GetNumberOfTetraCells();
+            GetNumberOfPrismLayerCells();
+            GetNumberOfInletQuadrilateralCells();
+            GetNumberOfOutletQuadrilateralCells();
+            SplitPrismLayersIntoEachPrismLayer();
+            FetchPrismLayerData();
+            GetNumberOfMostInnerPrismLayer();
+            GetNumberOfLayer();
+        }
+        /// <summary>
+        /// cellの種類と境界の番号でセル（エレメント）の様子数を調べて
+        /// 新しくList<Cell>を作る
+        /// </summary>
+        /// <param name="cellType"></param>
+        /// <param name="physicalID"></param>
+        /// <returns></returns>
+        public override (int, List<Cell>) GetNumberOfCells(CellType cellType, int physicalID)
+        {
+            int num = 0;
+            List<Cell> cells = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == cellType && cell.PhysicalID == physicalID)
+                {
+                    cells.Add(cell);
+                    num++;
+                }
+            }
+            return (num, cells);
+        }
+        public override void GetNumberOfLayer()
+        {
+            int numberOfLayer = 0;
+            numberOfLayer = this.NumberOfPrismLayerCells / this.NumberOfWallCells;
+            this.NumberOfLayer = numberOfLayer;
+        }
+        public override void GetNumberOfWALLCells()
+        {
+            (var numberOfWallCells, List<Cell> cellsWall) = GetNumberOfCells(CellType.Triangle, 10);
+            this.NumberOfWallCells = numberOfWallCells;
+            this.CellsWall = cellsWall;
+        }
+        public override void GetNumberOfInnerWallCells()
+        {
+            (var numberOfInnerWallCells, List<Cell> cellsInnerWall) = GetNumberOfCells(CellType.Triangle, 90);
+            this.NumberOfInnerWallCells = numberOfInnerWallCells;
+            this.CellsInnerWall = cellsInnerWall;
+        }
+        public override void GetNumberOfTetraCells()
+        {
+            (var numberOfTetrahedronCells, List<Cell> cellsTetra) = GetNumberOfCells(CellType.Tetrahedron, 100);
+            this.NumberOfTetrahedronCells = numberOfTetrahedronCells;
+            this.CellsTetra = cellsTetra;
+        }
+        public override void GetNumberOfPrismLayerCells()
+        {
+            (var numberOfPrismLayerCells, List<Cell> cellsPrismLayer) = GetNumberOfCells(CellType.Prism, 100);
+            this.NumberOfPrismLayerCells = numberOfPrismLayerCells;
+            this.CellsPrismLayer = cellsPrismLayer;
+        }
+        public override void GetNumberOfMostInnerPrismLayer()
+        {
+            if (this.SurfaceCellCorrespondPrismCells.Count == 0)
+                return;
+
+            int numberOfLayer = this.SurfaceCellCorrespondPrismCells[0].Count - 1;
+            Debug.WriteLine("====================================");
+            Debug.WriteLine($"{numberOfLayer}");
+            Debug.WriteLine("====================================");
+            int numberOfPrismLayer = 0;
+            int numberOfMostInnerCells = 0;
+            List<Cell> cellsMostInnerPrismLayer = new List<Cell>();
+            foreach (var cell in this.Cells)
+            {
+                if (cell.CellType == CellType.Prism)
+                {
+                    numberOfPrismLayer++;
+                    if (numberOfPrismLayer % numberOfLayer == 0)
+                    {
+                        cellsMostInnerPrismLayer.Add(cell);
+                        numberOfMostInnerCells++;
+                    }
+                }
+            }
+            this.NumberOfMostInnerPrismLayerCells = numberOfMostInnerCells;
+            this.CellsMostInnerPrismLayer = cellsMostInnerPrismLayer;
+            Debug.WriteLine($"NumberOfMostInnerPrismLayerCells : {this.NumberOfMostInnerPrismLayerCells}");
+        }
+        public override void GetNumberOfInletQuadrilateralCells()
+        {
+            (var numberOfInletQuadrilateralCells, List<Cell> cellsInletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 11);
+            this.NumberOfInletQuadrilateralCells = numberOfInletQuadrilateralCells;
+            this.CellsInletQuadrilateral = cellsInletQuadrilateral;
+        }
+        public override void GetNumberOfOutletQuadrilateralCells()
+        {
+            (var numberOfOutletQuadrilateralCells, List<Cell> cellsOutletQuadrilateral) = GetNumberOfCells(CellType.Quadrilateral, 12);
+            this.NumberOfOutletQuadrilateralCells = numberOfOutletQuadrilateralCells;
+            this.CellsOutletQuadrilateral = cellsOutletQuadrilateral;
+        }
+        public override void SplitPrismLayersIntoEachPrismLayer()
+        {
+            if (this.NumberOfWallCells == 0)
+                return;
+
+            int numberOfWallCells = this.NumberOfWallCells;
+            int numberOfPrismLayerCells = this.NumberOfPrismLayerCells;
+            int numberOfLayer = (int)(numberOfPrismLayerCells / numberOfWallCells);
+            this.NumberOfLayer = numberOfLayer;
+            Debug.WriteLine($"{numberOfLayer}");
+
+            this.CellsEachPrismLayer = new List<List<Cell>>();
+            for (int i = 0; i < numberOfLayer; i++)
+            {
+                this.CellsEachPrismLayer.Add(new List<Cell>());
+            }
+            int counter = 0;
+            foreach (var cell in this.CellsPrismLayer)
+            {
+                if (cell.CellType == CellType.Prism)
+                {
+                    this.CellsEachPrismLayer[counter % this.NumberOfLayer].Add(cell);
+                    counter++;
+                }
+            }
+        }
+
     }
 }
