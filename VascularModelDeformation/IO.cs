@@ -464,7 +464,7 @@ namespace VascularModelDeformation
             string filePath = Path.Combine(dirPath, "surface-from-gmsh22.stl"); 
             using (var sw = new StreamWriter(filePath)) 
             {
-                sw.WriteLine($"solid surface from imai");
+                sw.WriteLine($"solid surface from onoue");
                 foreach (var cell in mesh.Cells) 
                 {                                                                               
                     if (cell.CellType == CellType.Triangle && cell.PhysicalID == 10)            
@@ -489,6 +489,9 @@ namespace VascularModelDeformation
 
 
 
+
+
+
         public void WriteSTLInnerSurfaceFromCellsMostInnerPrism(Mesh mesh, string dirPath, string fileName) //966
         {
             Debug.WriteLine($"WriteSTLMostInnerSurface");
@@ -496,7 +499,7 @@ namespace VascularModelDeformation
             Debug.WriteLine($"{filePath}");
             using (var sw = new StreamWriter(filePath))
             {
-                sw.WriteLine($"solid surface from imai");
+                sw.WriteLine($"solid surface from onoue");
                 foreach (var cell in mesh.CellsMostInnerPrismLayer)
                 {
                     if (cell.CellType == CellType.Prism)
