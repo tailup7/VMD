@@ -28,16 +28,6 @@ surface_inlet_outlet = []
 # ===============================================
 
 
-# このスクリプトのパスを取得
-script_directory = os.path.dirname(os.path.abspath(__file__))
-
-# 'output' フォルダのパス
-output_directory = os.path.join(script_directory, "output")
-
-# 'output' フォルダがなければ作成する
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-
 # ===============================================
 # Setting up the display of the gmsh GUI
 def OptionSetting():
@@ -71,7 +61,7 @@ def ImportStl():
     # Absorb differences in directory and file paths between operating systems
     path = os.path.dirname(os.path.abspath(__file__))
     # read stl
-    gmsh.merge(os.path.join(path, "input/WALL.stl"))
+    gmsh.merge(os.path.join(path, "WALL.stl"))
 
     # Decompose the loaded shape at a set angle
     # it takes time if forReparametrization is not True
@@ -214,8 +204,8 @@ def ConfirmMesh():
 # vtk files are also output for viewing in paraview.
 def OutputMshVtk():
     gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
-    gmsh.write(os.path.join(output_directory, "MeshOriginal.msh"))
-    gmsh.write(os.path.join(output_directory, "MeshOriginal.vtk"))
+    gmsh.write("MeshOriginal.msh")
+    gmsh.write("MeshOriginal.vtk")
 # ===============================================
 
 # ===============================================
