@@ -42,37 +42,34 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(224, 27);
+            this.button1.Location = new System.Drawing.Point(0, 0);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(300, 34);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Button1. *.stl(any format) to *.msh by Gmsh";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 10;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(224, 113);
+            this.button2.Location = new System.Drawing.Point(158, 60);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(285, 40);
+            this.button2.Size = new System.Drawing.Size(261, 69);
             this.button2.TabIndex = 1;
-            this.button2.Text = "Button2. *.msh to *.stl(ASCII format) ";
+            this.button2.Text = "Button2. input : MeshOriginal.msh     output : gmsh22.stl";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(224, 195);
+            this.button3.Location = new System.Drawing.Point(158, 166);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(383, 52);
+            this.button3.Size = new System.Drawing.Size(315, 52);
             this.button3.TabIndex = 2;
-            this.button3.Text = "Button3. input : (*.stl) (ASCIIformat!) and centerline.txt  output : test.ply";
+            this.button3.Text = "Button3. input : gmsh22.stl, centerline.txt  output : test.ply";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(220, 307);
+            this.button4.Location = new System.Drawing.Point(158, 256);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(137, 23);
             this.button4.TabIndex = 3;
@@ -90,7 +87,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(236, 333);
+            this.label2.Location = new System.Drawing.Point(170, 282);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(528, 15);
             this.label2.TabIndex = 4;
@@ -100,7 +97,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(319, 348);
+            this.label3.Location = new System.Drawing.Point(253, 297);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(426, 15);
             this.label3.TabIndex = 6;
@@ -109,7 +106,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(271, 383);
+            this.label4.Location = new System.Drawing.Point(205, 321);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(493, 15);
             this.label4.TabIndex = 7;
@@ -118,7 +115,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(274, 417);
+            this.label5.Location = new System.Drawing.Point(205, 336);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(277, 15);
             this.label5.TabIndex = 8;
@@ -131,7 +128,8 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(195, 15);
             this.label6.TabIndex = 9;
-            this.label6.Text = "Button 1 → 4 の順に実行する";
+            this.label6.Text = "Button 2 → 4 の順に実行する";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // Form1
             // 

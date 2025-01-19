@@ -14,10 +14,10 @@ gmsh.initialize(sys.argv)
 
 # ===============================================
 # input parameter
-meshSize = 0.35 # mesh size
-N = 6 # number of layers
+meshSize = 0.5 # mesh size
+N = 5 # number of layers
 r = 1.1 # ration
-h = 0.075 # first_layer_thickness
+h = 0.05 # first_layer_thickness
 # ===============================================
 
 # ===============================================
@@ -154,7 +154,7 @@ def ShapeCreation():
     # Basically, Don't change here.
     # To set boundary conditions in OpenFOAM,
     # Name the volumes on the faces and walls of the model.
-    # Basic uppercase might be better.
+    # Uppercase might be better. "SOMETHING", "WALL", ...
     # Entity candidate to correspond to stl in C# code is SOMETHING
 def NamingBoundary():
     s_second = gmsh.model.getEntities(2)

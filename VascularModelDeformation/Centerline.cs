@@ -80,6 +80,18 @@ namespace VascularModelDeformation
             }
         }
         /// <summary>
+        /// 移動平均をかけた接線ベクトルから、回転行列を計算
+        /// </summary>
+        public void CalculateRotationMatrixFromSmoothedVectors()
+        {
+            foreach (var node in this.Nodes)
+            {
+                float[] vecA = new float[3] { node.XTangentSmoothed, node.YTangentSmoothed, node.ZTangentSmoothed };
+                float[] vecB = new float[3] { node.XMovedTangentSmoothed, node.YMovedTangentSmoothed, node.ZMovedTangentSmoothed };
+                node.RotationMatrix = Utility.RotationMatrix(vecA, vecB);
+            }
+        }
+        /// <summary>
         /// centerlineのNodeの平行移動量を計算
         /// </summary>
         public void CalculateCenterlineDifference()
@@ -131,6 +143,48 @@ namespace VascularModelDeformation
                 }
             }
         }
+
+        /// <summary>
+        /// 移動前の中心線Nodeの接線ベクトルに対して、移動平均をかける
+        /// </summary>
+        public void SmootheCenterlineTangentVectors()
+        {
+            int length = this.Nodes.Count;
+            for (int i = 0; i < length; i++)
+            {
+                if (i == 0)
+                {
+                    this.Nodes[i].XTangentSmoothed = (this.Nodes[i].XTangent + this.Nodes[i + 1].XTangent) / 2;
+                    this.Nodes[i].YTangentSmoothed = (this.Nodes[i].YTangent + this.Nodes[i + 1].YTangent) / 2;
+                    this.Nodes[i].ZTangentSmoothed = (this.Nodes[i].ZTangent + this.Nodes[i + 1].ZTangent) / 2;
+                }
+                else if (i == 1 || i == length - 2)
+                {
+                    this.Nodes[i].XTangentSmoothed = (this.Nodes[i - 1].XTangent + this.Nodes[i].XTangent + this.Nodes[i + 1].XTangent) / 3;
+                    this.Nodes[i].YTangentSmoothed = (this.Nodes[i - 1].YTangent + this.Nodes[i].YTangent + this.Nodes[i + 1].YTangent) / 3;
+                    this.Nodes[i].ZTangentSmoothed = (this.Nodes[i - 1].ZTangent + this.Nodes[i].ZTangent + this.Nodes[i + 1].ZTangent) / 3;
+                }
+                else if (i == 2 || i == length - 3)
+                {
+                    this.Nodes[i].XTangentSmoothed = (this.Nodes[i + 2].XTangent + this.Nodes[i + 1].XTangent + this.Nodes[i].XTangent + this.Nodes[i - 1].XTangent + this.Nodes[i - 2].XTangent) / 5;
+                    this.Nodes[i].YTangentSmoothed = (this.Nodes[i + 2].YTangent + this.Nodes[i + 1].YTangent + this.Nodes[i].YTangent + this.Nodes[i - 1].YTangent + this.Nodes[i - 2].YTangent) / 5;
+                    this.Nodes[i].ZTangentSmoothed = (this.Nodes[i + 2].ZTangent + this.Nodes[i + 1].ZTangent + this.Nodes[i].ZTangent + this.Nodes[i - 1].ZTangent + this.Nodes[i - 2].ZTangent) / 5;
+                }
+                else if (i == length - 1)
+                {
+                    this.Nodes[i].XTangentSmoothed = (this.Nodes[i].XTangent + this.Nodes[i - 1].XTangent) / 2;
+                    this.Nodes[i].YTangentSmoothed = (this.Nodes[i].YTangent + this.Nodes[i - 1].YTangent) / 2;
+                    this.Nodes[i].ZTangentSmoothed = (this.Nodes[i].ZTangent + this.Nodes[i - 1].ZTangent) / 2;
+                }
+
+                else
+                {
+                    this.Nodes[i].XTangentSmoothed = (this.Nodes[i + 3].XTangent + this.Nodes[i + 2].XTangent + this.Nodes[i + 1].XTangent + this.Nodes[i].XTangent + this.Nodes[i - 1].XTangent + this.Nodes[i - 2].XTangent + this.Nodes[i - 3].XTangent) / 7;
+                    this.Nodes[i].YTangentSmoothed = (this.Nodes[i + 3].YTangent + this.Nodes[i + 2].YTangent + this.Nodes[i + 1].YTangent + this.Nodes[i].YTangent + this.Nodes[i - 1].YTangent + this.Nodes[i - 2].YTangent + this.Nodes[i - 3].YTangent) / 7;
+                    this.Nodes[i].ZTangentSmoothed = (this.Nodes[i + 3].ZTangent + this.Nodes[i + 2].ZTangent + this.Nodes[i + 1].ZTangent + this.Nodes[i].ZTangent + this.Nodes[i - 1].ZTangent + this.Nodes[i - 2].ZTangent + this.Nodes[i - 3].ZTangent) / 7;
+                }
+            }
+        }
         /// <summary>
         /// 中心線の移動後の各Nodeの接線方向ベクトルを求める
         /// </summary>
@@ -169,6 +223,46 @@ namespace VascularModelDeformation
                     this.Nodes[i].XMovedTangent = vecNormalized[0];
                     this.Nodes[i].YMovedTangent = vecNormalized[1];
                     this.Nodes[i].ZMovedTangent = vecNormalized[2];
+                }
+            }
+        }
+        /// <summary>
+        /// 移動後の中心線Nodeの接線ベクトルに対して、移動平均をかける
+        /// </summary>
+        public void SmootheCenterlineMovedTangentVectors()
+        {
+            int length = this.Nodes.Count;
+            for (int i = 0; i < length; i++)
+            {
+                if (i == 0)
+                {
+                    this.Nodes[i].XMovedTangentSmoothed = (this.Nodes[i].XMovedTangent + this.Nodes[i + 1].XMovedTangent) / 2;
+                    this.Nodes[i].YMovedTangentSmoothed = (this.Nodes[i].YMovedTangent + this.Nodes[i + 1].YMovedTangent) / 2;
+                    this.Nodes[i].ZMovedTangentSmoothed = (this.Nodes[i].ZMovedTangent + this.Nodes[i + 1].ZMovedTangent) / 2;
+                }
+                else if (i == 1 || i == length - 2)
+                {
+                    this.Nodes[i].XMovedTangentSmoothed = (this.Nodes[i + 1].XMovedTangent + this.Nodes[i].XMovedTangent + this.Nodes[i - 1].XMovedTangent) / 3;
+                    this.Nodes[i].YMovedTangentSmoothed = (this.Nodes[i + 1].YMovedTangent + this.Nodes[i].YMovedTangent + this.Nodes[i - 1].YMovedTangent) / 3;
+                    this.Nodes[i].ZMovedTangentSmoothed = (this.Nodes[i + 1].ZMovedTangent + this.Nodes[i].ZMovedTangent + this.Nodes[i - 1].ZMovedTangent) / 3;
+                }
+                else if (i == 2 || i == length - 3)
+                {
+                    this.Nodes[i].XMovedTangentSmoothed = (this.Nodes[i + 2].XMovedTangent + this.Nodes[i + 1].XMovedTangent + this.Nodes[i].XMovedTangent + this.Nodes[i - 1].XMovedTangent + this.Nodes[i - 2].XMovedTangent) / 5;
+                    this.Nodes[i].YMovedTangentSmoothed = (this.Nodes[i + 2].YMovedTangent + this.Nodes[i + 1].YMovedTangent + this.Nodes[i].YMovedTangent + this.Nodes[i - 1].YMovedTangent + this.Nodes[i - 2].YMovedTangent) / 5;
+                    this.Nodes[i].ZMovedTangentSmoothed = (this.Nodes[i + 2].ZMovedTangent + this.Nodes[i + 1].ZMovedTangent + this.Nodes[i].ZMovedTangent + this.Nodes[i - 1].ZMovedTangent + this.Nodes[i - 2].ZMovedTangent) / 5;
+                }
+                else if (i == length - 1)
+                {
+                    this.Nodes[i].XMovedTangentSmoothed = (this.Nodes[i].XMovedTangent + this.Nodes[i - 1].XMovedTangent) / 2;
+                    this.Nodes[i].YMovedTangentSmoothed = (this.Nodes[i].YMovedTangent + this.Nodes[i - 1].YMovedTangent) / 2;
+                    this.Nodes[i].ZMovedTangentSmoothed = (this.Nodes[i].ZMovedTangent + this.Nodes[i - 1].ZMovedTangent) / 2;
+                }
+                else
+                {
+                    this.Nodes[i].XMovedTangentSmoothed = (this.Nodes[i + 3].XMovedTangent + this.Nodes[i + 2].XMovedTangent + this.Nodes[i + 1].XMovedTangent + this.Nodes[i].XMovedTangent + this.Nodes[i - 1].XMovedTangent + this.Nodes[i - 2].XMovedTangent + this.Nodes[i - 3].XMovedTangent) / 7;
+                    this.Nodes[i].YMovedTangentSmoothed = (this.Nodes[i + 3].YMovedTangent + this.Nodes[i + 2].YMovedTangent + this.Nodes[i + 1].YMovedTangent + this.Nodes[i].YMovedTangent + this.Nodes[i - 1].YMovedTangent + this.Nodes[i - 2].YMovedTangent + this.Nodes[i - 3].YMovedTangent) / 7;
+                    this.Nodes[i].ZMovedTangentSmoothed = (this.Nodes[i + 3].ZMovedTangent + this.Nodes[i + 2].ZMovedTangent + this.Nodes[i + 1].ZMovedTangent + this.Nodes[i].ZMovedTangent + this.Nodes[i - 1].ZMovedTangent + this.Nodes[i - 2].ZMovedTangent + this.Nodes[i - 3].ZMovedTangent) / 7;
                 }
             }
         }

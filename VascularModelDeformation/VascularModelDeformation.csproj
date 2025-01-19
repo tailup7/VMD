@@ -118,6 +118,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="HalfEdge.cs" />
+    <Compile Include="IGeometricShape.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="LocalPath.cs" />
     <Compile Include="Log.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="STL.cs" />
+    <Compile Include="Tetrahedron.cs" />
     <Compile Include="Triangle.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="VTK.cs" />

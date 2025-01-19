@@ -461,7 +461,7 @@ namespace VascularModelDeformation
         /// <param name="dirPath"></param>
         public void WriteSTLWALLSurface(Mesh mesh, string dirPath)  
         {
-            string filePath = Path.Combine(dirPath, "surface-from-gmsh22.stl"); 
+            string filePath = Path.Combine(dirPath, "gmsh22.stl"); 
             using (var sw = new StreamWriter(filePath)) 
             {
                 sw.WriteLine($"solid surface from onoue");
@@ -521,6 +521,434 @@ namespace VascularModelDeformation
             }
         }
 
+        /// <summary>
+        /// vtkを出力するための関数
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="dirPath"></param>
+        /// <param name="fileName"></param>
+        public void WriteVTKMesh(Mesh mesh, string dirPath, string fileName)     // 1134
+        {
+            bool flagCell = false;
+            Debug.WriteLine($"WriteVTKMeshTest");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            using (StreamWriter sw = new StreamWriter(filePath))
+            {
+                string fixHeader = WriteVTKFixHeader();
+                string datasetHeader = WriteVTKDatasetUnstructuredGrid();
+                string pointsHeader = WriteVTKPointsHeader(mesh.Nodes.Count);
+                string pointsList = WriteVTKPointsList(mesh.Nodes);
+                string cellsHeader = WriteVTKCellsHeader(mesh.Cells);
+                string cellsList = WriteVTKCellsList(mesh.Cells);
+                string cellTypesHeader = WriteVTKCellTypesHeader(mesh.Cells);
+                string cellTypesList = WriteVTKCellTypesList(mesh.Cells);
+                string cellQualityAspectRatioHeader = WriteVTKCellQualityAspectRatioHeader(mesh.Cells, ref flagCell);
+                string cellQualityAspectRatioList = WriteVTKCellQualityAspectRatioList(mesh);
+                string cellQualityEdgeRatioHeader = WriteVTKCellQualityEdgeRatioHeader(mesh.Cells, ref flagCell);
+                string cellQualityEdgeRatioList = WriteVTKCellQualityEdgeRatioList(mesh);
+                string cellQualityRadiusRatioHeader = WriteVTKCellQualityRadiusRatioHeader(mesh.Cells, ref flagCell);
+                string cellQualityRadiusRatioList = WriteVTKCellQualityRadiusRatioList(mesh);
+                string cellAreaHeader = WriteVTKCellAreaHeader(mesh.Cells, ref flagCell);
+                string cellAreaList = WriteVTKCellAreaList(mesh);
+                string cellVolumeHeader = WriteVTKCellVolumeHeader(mesh.Cells, ref flagCell);
+                string cellVolumeList = WriteVTKCellVolumeList(mesh);
+                sw.Write(fixHeader);
+                sw.Write(datasetHeader);
+                sw.Write(pointsHeader);
+                sw.Write(pointsList);
+                sw.Write(cellsHeader);
+                sw.Write(cellsList);
+                sw.Write(cellTypesHeader);
+                sw.Write(cellTypesList);
+                sw.Write(cellQualityAspectRatioHeader);
+                sw.Write(cellQualityAspectRatioList);
+                sw.Write(cellQualityEdgeRatioHeader);
+                sw.Write(cellQualityEdgeRatioList);
+                sw.Write(cellQualityRadiusRatioHeader);
+                sw.Write(cellQualityRadiusRatioList);
+                sw.Write(cellAreaHeader);
+                sw.Write(cellAreaList);
+                sw.Write(cellVolumeHeader);
+                sw.Write(cellVolumeList);
+            }
+        }
+        /// <summary>
+        /// unstrunctued gridを出力する際の決まったヘッダーを書き込む
+        /// </summary>
+        /// <returns></returns>
+        private string WriteVTKFixHeader()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(WriteVTKDataFileHeader());
+            sb.Append(WriteVTKHeader());
+            sb.Append(WriteVTKASCII());
+            return sb.ToString();
+        }
+        private string WriteVTKDataFileHeader()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("# vtk DataFile Version 2.0").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKHeader()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("HEADER").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKASCII()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("ASCII").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKDatasetUnstructuredGrid()
+        {
+            return "DATASET UNSTRUCTURED_GRID" + Environment.NewLine;
+        }
+        private string WriteVTKPointsHeader(int numberOfPoints)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("POINTS").Append(" ").Append(numberOfPoints.ToString()).Append(" ").Append("float").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKPointsList(List<Node> nodes)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var node in nodes)
+            {
+                sb.Append(node.X.ToString()).Append(" ").Append(node.Y.ToString()).Append(" ").Append(node.Z.ToString()).Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
+
+        private string WriteVTKCellsHeader(List<Cell> cells)
+        {
+            int numberOfCells = cells.Count;
+            int number = 0;
+            foreach (var cell in cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    number += 1 + 3;
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    number += 1 + 4;
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    number += 1 + 4;
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    number += 1 + 6;
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"CELLS").Append(" ").Append(numberOfCells.ToString()).Append(" ").Append(number.ToString()).Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKCellsList(List<Cell> cells)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    sb.Append(3.ToString()).Append(" ").Append((cell.NodesIndex[0] - 1).ToString()).Append(" ").Append((cell.NodesIndex[1] - 1).ToString()).Append(" ").Append((cell.NodesIndex[2] - 1).ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(4.ToString()).Append(" ").Append((cell.NodesIndex[0] - 1).ToString()).Append(" ").Append((cell.NodesIndex[1] - 1).ToString()).Append(" ").Append((cell.NodesIndex[2] - 1).ToString()).Append(" ").Append((cell.NodesIndex[3] - 1).ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    sb.Append(4.ToString()).Append(" ").Append((cell.NodesIndex[0] - 1).ToString()).Append(" ").Append((cell.NodesIndex[1] - 1).ToString()).Append(" ").Append((cell.NodesIndex[2] - 1).ToString()).Append(" ").Append((cell.NodesIndex[3] - 1).ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(6.ToString()).Append(" ").Append((cell.NodesIndex[0] - 1).ToString()).Append(" ").Append((cell.NodesIndex[1] - 1).ToString()).Append(" ").Append((cell.NodesIndex[2] - 1).ToString()).Append(" ").Append((cell.NodesIndex[3] - 1).ToString()).Append(" ").Append((cell.NodesIndex[4] - 1).ToString()).Append(" ").Append((cell.NodesIndex[5] - 1).ToString()).Append(Environment.NewLine);
+                }
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellTypesHeader(List<Cell> cells)
+        {
+            int numberOfCells = cells.Count;
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"CELL_TYPES").Append(" ").Append(numberOfCells.ToString()).Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKCellTypesList(List<Cell> cells)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    sb.Append(VTK_TRIANGLE.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(VTK_QUAD.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    sb.Append(VTK_TETRA.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(VTK_WEDGE.ToString()).Append(Environment.NewLine);
+                }
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityAspectRatioHeader(List<Cell> cells, ref bool flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            int numberOfCells = cells.Count;
+            if (!flag)
+            {
+                Debug.WriteLine($"flag is false");
+                sb.Append("CELL_DATA").Append(" ").Append(numberOfCells.ToString()).Append(Environment.NewLine);
+                flag = true;
+            }
+            sb.Append("SCALARS").Append(" ").Append("QualityAspectRatio").Append(" ").Append("double").Append(Environment.NewLine);
+            sb.Append("LOOKUP_TABLE default").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityAspectRatioList(Mesh mesh)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in mesh.Cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Triangle triangle = new Triangle(node0, node1, node2);
+                    sb.Append(triangle.QualityAspectRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                    Tetrahedron tetrahedron = new Tetrahedron(node0, node1, node2, node3);
+                    sb.Append(tetrahedron.QualityAspectRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityEdgeRatioHeader(List<Cell> cells, ref bool flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            int numberOfCells = cells.Count;
+            if (!flag)
+            {
+                Debug.WriteLine($"flag is false");
+                sb.Append("CELL_DATA").Append(" ").Append(numberOfCells.ToString()).Append(Environment.NewLine);
+                flag = true;
+            }
+            sb.Append("SCALARS").Append(" ").Append("QualityEdgeRatio").Append(" ").Append("double").Append(Environment.NewLine);
+            sb.Append("LOOKUP_TABLE default").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityEdgeRatioList(Mesh mesh)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in mesh.Cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Triangle triangle = new Triangle(node0, node1, node2);
+                    sb.Append(triangle.QualityEdgeRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                    Tetrahedron tetrahedron = new Tetrahedron(node0, node1, node2, node3);
+                    sb.Append(tetrahedron.QualityEdgeRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityRadiusRatioHeader(List<Cell> cells, ref bool flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            int numberOfCells = cells.Count;
+            if (!flag)
+            {
+                Debug.WriteLine($"flag is false");
+                sb.Append("CELL_DATA").Append(" ").Append(numberOfCells.ToString()).Append(Environment.NewLine);
+                flag = true;
+            }
+            sb.Append("SCALARS").Append(" ").Append("QualityRadiusRatio").Append(" ").Append("double").Append(Environment.NewLine);
+            sb.Append("LOOKUP_TABLE default").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        private string WriteVTKCellQualityRadiusRatioList(Mesh mesh)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in mesh.Cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Triangle triangle = new Triangle(node0, node1, node2);
+                    sb.Append(triangle.QualityRadiusRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                    Tetrahedron tetrahedron = new Tetrahedron(node0, node1, node2, node3);
+                    sb.Append(tetrahedron.QualityRadiusRatio.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellAreaHeader(List<Cell> cells, ref bool flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            int numberOfCells = cells.Count;
+            if (!flag)
+            {
+                Debug.WriteLine($"flag is false");
+                sb.Append("CELL_DATA").Append(" ").Append(numberOfCells.ToString()).Append(Environment.NewLine);
+                flag = true;
+            }
+            sb.Append("SCALARS").Append(" ").Append("Area").Append(" ").Append("double").Append(Environment.NewLine);
+            sb.Append("LOOKUP_TABLE default").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 二次元セルの場合は面積
+        /// 三次元セルの場合は表面積
+        /// </summary>
+        /// <param name="cells"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        private string WriteVTKCellAreaList(Mesh mesh)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in mesh.Cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Triangle triangle = new Triangle(node0, node1, node2);
+                    sb.Append(triangle.Area.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                    Tetrahedron tetrahedron = new Tetrahedron(node0, node1, node2, node3);
+                    sb.Append(tetrahedron.Area.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKCellVolumeHeader(List<Cell> cells, ref bool flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (!flag)
+            {
+                sb.Append("CELL_DATA").Append(" ").Append(cells.Count.ToString()).Append(Environment.NewLine);
+                flag = true;
+            }
+            sb.Append("SCALARS").Append(" ").Append("Volume").Append(" ").Append("double").Append(Environment.NewLine);
+            sb.Append("LOOKUP_TABLE default").Append(Environment.NewLine);
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 二次元セルの場合は0
+        /// 三次元セルのみ存在する
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        private string WriteVTKCellVolumeList(Mesh mesh)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var cell in mesh.Cells)
+            {
+                if (cell.CellType == CellType.Triangle)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Quadrilateral)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Tetrahedron)
+                {
+                    Node node0 = mesh.Nodes[cell.NodesIndex[0] - 1];
+                    Node node1 = mesh.Nodes[cell.NodesIndex[1] - 1];
+                    Node node2 = mesh.Nodes[cell.NodesIndex[2] - 1];
+                    Node node3 = mesh.Nodes[cell.NodesIndex[3] - 1];
+                    Tetrahedron tetrahedron = new Tetrahedron(node0, node1, node2, node3);
+                    sb.Append(tetrahedron.Volume.ToString()).Append(Environment.NewLine);
+                }
+                if (cell.CellType == CellType.Prism)
+                {
+                    sb.Append(0.ToString()).Append(Environment.NewLine);
+                }
+            }
+            return sb.ToString();
+        }
 
 
         public void WriteGMSH22(Mesh mesh, string dirPath, string fileName)   // 2131

@@ -1040,6 +1040,12 @@ namespace VascularModelDeformation
             };
         }
 
+        /// <summary>
+        /// 入力hashset (流入出面のtriangleか、quadrilateralの集合) の、各セルのNode indexをリストにしてlistHashSet として返す 
+        /// </summary>
+        /// <param name="cells"></param>
+        /// <param name="hashSet"></param>
+        /// <returns></returns>
         private List<HashSet<int>> MakeSOMETHINGCellHashSet(List<Cell> cells, HashSet<int> hashSet)
         {
             List<HashSet<int>> listHashSet = new List<HashSet<int>>();
@@ -1061,13 +1067,13 @@ namespace VascularModelDeformation
             return listHashSet;
         }
         /// <summary>
-        /// SOMETHINGであるcellを求める
+        /// SOMETHINGであるcellを求めて、cellsOfSOMETHINGPhysicalID に格納
         /// </summary>
         /// <param name="cells"></param>
         /// <returns></returns>
         private List<Cell> ExtractCellsOfSOMETHING(List<Cell> cells)
         {
-            var SOMETHINGPhysicalID = DetectSOMETHINGPhysicalID(cells);
+            var SOMETHINGPhysicalID = DetectSOMETHINGPhysicalID(cells); // = 99
             List<Cell> cellsOfSOMETHINGPhysicalID = new List<Cell>();
             foreach (var cell in cells)
             {

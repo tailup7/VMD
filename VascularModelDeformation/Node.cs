@@ -259,6 +259,12 @@ namespace VascularModelDeformation
         public float XMovedTangent { get; set; }
         public float YMovedTangent { get; set; }
         public float ZMovedTangent { get; set; }
+        public float XTangentSmoothed { get; set; }
+        public float YTangentSmoothed { get; set; }
+        public float ZTangentSmoothed { get; set; }
+        public float XMovedTangentSmoothed { get; set; }
+        public float YMovedTangentSmoothed { get; set; }
+        public float ZMovedTangentSmoothed { get; set; }
         public float[] Difference { get; set; } = new float[3] { 0.0f, 0.0f, 0.0f };
         public float[,] RodriguesMatrix { get; set; } = new float[3, 3];
         public float[,] RotationMatrix { get; set; } = new float[3, 3];

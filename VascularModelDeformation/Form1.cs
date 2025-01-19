@@ -47,35 +47,35 @@ namespace VascularModelDeformation
             this.IO = new IO();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
+        //private void button1_Click(object sender, EventArgs e)
+        //{
             // makemesh.py のパス (適切に変更してください!)
-            string pythonScriptPath = @"C:\git\VMD\makemesh.py";
+            //string pythonScriptPath = @"C:\git\VMD\makemesh.py";
 
             // Python.exe のパス (適切に変更してください!)
-            string pythonExePath = @"C:\git\VMD\venv\Scripts\python.exe";
+            //string pythonExePath = @"C:\git\VMD\venv\Scripts\python.exe";
 
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = pythonExePath,
-                Arguments = $"\"{pythonScriptPath}\"", 
-                CreateNoWindow = true, 
-                UseShellExecute = false, 
-            };
+            //ProcessStartInfo startInfo = new ProcessStartInfo
+            //{
+                //FileName = pythonExePath,
+                //Arguments = $"\"{pythonScriptPath}\"", 
+                //CreateNoWindow = true, 
+                //UseShellExecute = false, 
+            //};
 
-            try
-            {
-                Process process = Process.Start(startInfo);
-                process.WaitForExit(); 
+            //try
+            //{
+                //Process process = Process.Start(startInfo);
+                //process.WaitForExit(); 
 
-                MessageBox.Show("Making mesh has been done successfully.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error executing Python script: {ex.Message}");
-            }
+                //MessageBox.Show("Making mesh has been done successfully.");
+            //}
+            //catch (Exception ex)
+            //{
+                //MessageBox.Show($"Error executing Python script: {ex.Message}");
+            //}
 
-        }
+        //}
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -172,13 +172,18 @@ namespace VascularModelDeformation
                 }
 
                 this.IO.WriteGMSH22(model.MeshMerged, this.DirPath, "MeshMerged.msh");
-                // this.IO.WriteVTKMesh(model.MeshMerged, this.DirPath, "MeshMerged.vtk");
+                this.IO.WriteVTKMesh(model.MeshMerged, this.DirPath, "MeshMerged.vtk");
                 // this.IO.WriteCSVCellQuality(model.MeshMerged, this.DirPath);
             }
             GC.Collect();
         }
 
         private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
         {
 
         }

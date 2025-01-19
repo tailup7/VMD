@@ -105,13 +105,16 @@ namespace VascularModelDeformation
                 this.Centerline.CalculateCenterlineDifference();
                 this.Centerline.CalculateCenterlineTangentVectors();
                 this.Centerline.CalculateCenterlineMovedTangentVectors();
+                this.Centerline.SmootheCenterlineTangentVectors();
+                this.Centerline.SmootheCenterlineMovedTangentVectors();
                 //this.Centerline.Nodes[0].XTangent = 0.0f;
                 //this.Centerline.Nodes[0].YTangent = 0.0f;
                 //this.Centerline.Nodes[0].ZTangent = 1.0f;
                 //this.Centerline.Nodes[this.Centerline.Nodes.Count - 1].XTangent = 0.0f;
                 //this.Centerline.Nodes[this.Centerline.Nodes.Count - 1].YTangent = 0.0f;
                 //this.Centerline.Nodes[this.Centerline.Nodes.Count - 1].ZTangent = -1.0f;
-                this.Centerline.CalculateRotationMatrix();
+                // this.Centerline.CalculateRotationMatrix();
+                this.Centerline.CalculateRotationMatrixFromSmoothedVectors();
             }
             catch (Exception e)
             {
