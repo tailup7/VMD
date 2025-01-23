@@ -265,7 +265,6 @@ namespace VascularModelDeformation
         public float XMovedTangentSmoothed { get; set; }
         public float YMovedTangentSmoothed { get; set; }
         public float ZMovedTangentSmoothed { get; set; }
-        public List<float> radius { get; set; }
         public float[] Difference { get; set; } = new float[3] { 0.0f, 0.0f, 0.0f };
         public float[,] RodriguesMatrix { get; set; } = new float[3, 3];
         public float[,] RotationMatrix { get; set; } = new float[3, 3];
@@ -276,7 +275,6 @@ namespace VascularModelDeformation
         public NodeCenterline()
         {
             //Debug.WriteLine($"This is NodeCenterLine constructor.");
-            radius = new List<float>();
         }
         /// <summary>
         /// constructor
@@ -288,35 +286,6 @@ namespace VascularModelDeformation
             this.Y = y;
             this.Z = z;
         }
-        // ファイルを読み込んで radius に値を追加するメソッド
-        //public void setRadius(string[] lines)
-        //{
-        //    try
-        //    {
-                // 各行を解析して radius に追加
-        //        foreach (string line in lines)
-        //        {
-        //            // 行が空でない場合、値を float に変換して radius に追加
-        //            if (!string.IsNullOrWhiteSpace(line))
-        //            {
-        //                float value;
-         //               if (float.TryParse(line.Trim(), out value))  // 数値に変換
-         //               {
-         //                   radius.Add(value);  // リストに追加
-         //               }
-         //               else
-         //               {
-         //                   Console.WriteLine($"無効な値が検出されました: {line}");
-         //               }
-          //          }
-          //      }
-           // }
-           // catch (Exception ex)
-           // {
-                // ファイルの読み込みエラーの処理
-           //     Console.WriteLine($"ファイル読み込み中にエラーが発生しました: {ex.Message}");
-           // }
-       // }
     }
     public class NodeSurface : Node
     {
