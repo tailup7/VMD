@@ -47,36 +47,11 @@ namespace VascularModelDeformation
             this.IO = new IO();
         }
 
-        //private void button1_Click(object sender, EventArgs e)
-        //{
-            // makemesh.py のパス (適切に変更してください!)
-            //string pythonScriptPath = @"C:\git\VMD\makemesh.py";
-
-            // Python.exe のパス (適切に変更してください!)
-            //string pythonExePath = @"C:\git\VMD\venv\Scripts\python.exe";
-
-            //ProcessStartInfo startInfo = new ProcessStartInfo
-            //{
-                //FileName = pythonExePath,
-                //Arguments = $"\"{pythonScriptPath}\"", 
-                //CreateNoWindow = true, 
-                //UseShellExecute = false, 
-            //};
-
-            //try
-            //{
-                //Process process = Process.Start(startInfo);
-                //process.WaitForExit(); 
-
-                //MessageBox.Show("Making mesh has been done successfully.");
-            //}
-            //catch (Exception ex)
-            //{
-                //MessageBox.Show($"Error executing Python script: {ex.Message}");
-            //}
-
-        //}
-
+        /// <summary>
+        /// Gmshで作成したメッシュファイルの表面メッシュをSTLファイルとして出力
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
             Model model = new Model();
@@ -85,6 +60,11 @@ namespace VascularModelDeformation
             this.IO.WriteSTLWALLSurface(model.Mesh, this.DirPath);
         }
 
+        /// <summary>
+        /// Button2で得たSTLとその中心線から、表面三角形パッチと中心線Nodeの関係を出力
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
             List<Triangle> triangles = this.IO.ReadSTLASCII();
@@ -99,6 +79,26 @@ namespace VascularModelDeformation
             // this.IO.WriteVTKPolydataCenterline(centerline, this.DirPath, 0);
         }
 
+        /// <summary>
+        /// STLと中心線から、中心線Node周りの平均半径を計算する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button5_Click(object sender, EventArgs e)
+        {
+            List<Triangle> triangles = this.IO.ReadSTLASCII();
+            STL stl = new STL(triangles);
+            Centerline centerline = new Centerline();
+            (centerline, this.DirPath) = this.IO.ReadCenterline();
+            List<float> radius = Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(centerline.Nodes, stl);
+            this.IO.WriteRadius(radius, this.DirPath, "radius.txt");
+        }
+
+        /// <summary>
+        /// Gmshで作成した解析モデルを、基準中心線と目標中心線から計算される移動変形量と、Button5で得る目標半径に従って移動させ、目標解析モデルを得る
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button4_Click(object sender, EventArgs e)
         {
             Console.WriteLine($"test");
@@ -115,10 +115,11 @@ namespace VascularModelDeformation
                 // this.IO.WriteVTKPolydataCenterline(model.Centerline, test, 0);
                 // this.IO.WriteVTKPolydataCenterline(model.CenterlineFinalPosition, test, 1);
                 model.SurfaceCorrespondIndex = this.IO.ReadPLY();
+                model.Centerline.Radius = this.IO.ReadRadius();
                 (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
                 model.Mesh.AnalyzeMesh();
 
-                model.Mesh.FetchPrismLayerData();
+                //model.Mesh.FetchPrismLayerData();
                 model.Mesh.SetCellCorrespondCenterlineIndex(model.SurfaceCorrespondIndex);
                 //model.Mesh.AssignFaceCorrespondIndexToNodeCorrespondIndex();
                 model.Mesh.AssignFaceCorrespondIndexToNodeCorrespondIndexList();
@@ -187,5 +188,7 @@ namespace VascularModelDeformation
         {
 
         }
+
+
     }
 }

@@ -331,11 +331,65 @@ namespace VascularModelDeformation
         }
 
 
+        /// <summary>
+        /// read targetRadius.txt 
+        /// </summary>
+        /// <returns></returns>
+        public List<float> ReadRadius()
+        {
+            Debug.WriteLine($"ReadRadius");
+
+            string filePath = null;
+            using (var ofd = new OpenFileDialog())
+            {
+                 ofd.Filter = "radius files|*.txt";
+                 if (ofd.ShowDialog() == DialogResult.OK)
+                 {
+                    filePath = ofd.FileName;
+                 }
+            }
+            string[] lines = File.ReadAllLines(filePath);
+            List<float> radius = new List<float>();
+            try
+            {
+                foreach (string line in lines)
+                {
+                    if (!string.IsNullOrWhiteSpace(line) && !line.Trim().StartsWith("#"))
+                    {
+                        float value;
+                        if (float.TryParse(line.Trim(), out value)) 
+                        {
+                            radius.Add(value);  
+                        }
+                        else
+                        {
+                            Console.WriteLine($"無効な値が検出されました: {line}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ファイル読み込み中にエラーが発生しました: {ex.Message}");
+            }
+            return radius;
+        }
 
 
-
-
-
+        public void WriteRadius (List<float> radius, string dirPath, string fileName)
+        {
+            Debug.WriteLine($"WritePLY");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            using (StreamWriter sw = new StreamWriter(filePath))
+            {
+                sw.WriteLine($"# {radius.Count}");
+                foreach (var r in radius)
+                {
+                    sw.WriteLine(r);
+                }
+            }
+        }
 
         public List<Triangle> ReadSTLASCII()
         {
@@ -354,6 +408,7 @@ namespace VascularModelDeformation
                 }
             }
             List<Triangle> triangles = ReadSTLASCII(stlFilePath);
+            Console.WriteLine($"Number of triangles read: {triangles.Count}");
             return triangles;
         }
         /// <summary>
@@ -370,45 +425,68 @@ namespace VascularModelDeformation
                 string line;
                 int numberOfTriangles = 0;
 
+                
                 // ファイルの先頭から"solid"が現れるまで読み込む
                 // 読み込んだ部分は無視するのでbreak
                 while ((line = reader.ReadLine()) != null)
                 {
+                    line = line.Trim();
                     if (line.StartsWith("solid"))
                     {
                         break;
                     }
                 }
 
-                // "facet"から始まる行を読み込んで、三角形を作成する
                 while ((line = reader.ReadLine()) != null)
                 {
+                    line = line.Trim();
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        continue;
+                    }
                     if (line.StartsWith("facet"))
                     {
-                        // 法線ベクトルを読み込む
+                       
                         string[] normalLine = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float nx = float.Parse(normalLine[2]);
                         float ny = float.Parse(normalLine[3]);
                         float nz = float.Parse(normalLine[4]);
 
-                        // 三角形の頂点を読み込む
-                        line = reader.ReadLine();
-                        string[] vertexLine1 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            line = line.Trim();
+                            if (line.StartsWith("outer loop"))
+                            {
+                                break;
+                            }
+                        }
+                        
+                        line = reader.ReadLine().Trim();
+                        string[] vertexLine1 = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float x1 = float.Parse(vertexLine1[1]);
                         float y1 = float.Parse(vertexLine1[2]);
                         float z1 = float.Parse(vertexLine1[3]);
 
-                        string[] vertexLine2 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        line = reader.ReadLine().Trim();
+                        string[] vertexLine2 = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float x2 = float.Parse(vertexLine2[1]);
                         float y2 = float.Parse(vertexLine2[2]);
                         float z2 = float.Parse(vertexLine2[3]);
 
-                        string[] vertexLine3 = reader.ReadLine().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        line = reader.ReadLine().Trim();
+                        string[] vertexLine3 = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float x3 = float.Parse(vertexLine3[1]);
                         float y3 = float.Parse(vertexLine3[2]);
                         float z3 = float.Parse(vertexLine3[3]);
 
-                        // 三角形を作成してリストに追加する
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            line = line.Trim();
+                            if (line.StartsWith("endloop"))
+                            {
+                                break;
+                            }
+                        }
                         Triangle triangle = new Triangle(
                             numberOfTriangles,
                             new Node(x1, y1, z1),
@@ -421,6 +499,7 @@ namespace VascularModelDeformation
                         // "endfacet"まで読み込む
                         while ((line = reader.ReadLine()) != null)
                         {
+                            line = line.Trim();
                             if (line.StartsWith("endfacet"))
                             {
                                 break;

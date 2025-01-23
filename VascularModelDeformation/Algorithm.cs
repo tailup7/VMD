@@ -203,13 +203,14 @@ namespace VascularModelDeformation
             }
         }
         /// <summary>
-        /// 中心線Nodeと血管内宮表面Nodeの対応を求める
-        /// 多分使わない
+        /// (中心線Nodeと血管内宮表面Nodeの対応を求め)  中心線 Node 周りの平均半径を計算する
         /// </summary>
         /// <param name="nodesCenterline"></param>
         /// <param name="stl"></param>
-        public static void CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode(List<Node> nodesCenterline, STL stl)
+        public static List<float> CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(List<NodeCenterline> nodesCenterline, STL stl)
         {
+            List<float> radius = new List<float>(new float[nodesCenterline.Count]);
+            List<float> radiusCountor = new List<float>(new float[nodesCenterline.Count]);
             foreach (var node in stl.Nodes)
             {
                 int index = -1;
@@ -225,9 +226,20 @@ namespace VascularModelDeformation
                     }
                 }
                 node.CorrespondCenterlineIndex = index;
-                ;
+                radius[index] += minDistance;
+                radiusCountor[index] += 1.0f;
             }
+            for (int i = 0 ; i <radius.Count; i++)
+            {
+                if (radiusCountor[i] != 0.0f)
+                {
+                    radius[i] = radius[i] / radiusCountor[i];
+                }
+            }
+            return radius;
         }
+
+
     }
 }
 

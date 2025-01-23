@@ -26,6 +26,7 @@ namespace VascularModelDeformation
         /// 変形先
         /// </summary>
         public Centerline CenterlineFinalPosition { get; set; }
+
         public Mesh Mesh { get; set; }
         public MeshSurface MeshOuterSurface { get; set; }
         public MeshSurface MeshInnerSurface { get; set; }
@@ -623,9 +624,10 @@ namespace VascularModelDeformation
                     // 回転行列を取得
                     var rotationMatrix = centerline.Nodes[correspondIndex].RotationMatrix;
 
-                    // ローカルの座標軸で、メッシュのノードの座標を回転させる
+                    // 回転後の、移動前中心線Nodeから表面Nodeへのベクトル
                     float[] coordMeshNodeLocalMoved = Utility.MatVec(rotationMatrix, coordMeshNodeLocal);
 
+                    // 回転による移動量 + 移動前の中心線Nodeの座標
                     float[] coordMeshNodeGlobalMoved = new float[3]
                     {
                         coordMeshNodeLocalMoved[0] + coordCenterlineNodeGlobal[0],
@@ -633,7 +635,7 @@ namespace VascularModelDeformation
                         coordMeshNodeLocalMoved[2] + coordCenterlineNodeGlobal[2],
                     };
 
-                    // ここで、移動量の和に足しこみ
+                    // ここで、移動量の和に足しこみ。(移動量を加えた変形後のグローバル座標)
                     // 実際の移動量は、この後に平均をとる
                     node.XMovedSum += coordMeshNodeGlobalMoved[0];
                     node.YMovedSum += coordMeshNodeGlobalMoved[1];
@@ -641,6 +643,83 @@ namespace VascularModelDeformation
                 }
             }
         }
+
+        private void CalculateMeshDeformationRadius(Mesh mesh, Centerline centerline)
+        {
+            foreach (var node in mesh.Nodes)
+            {
+                /** ここの例外処理の説明
+                 * node.CorrespondIndexListが
+                 * nullでない、かつ、空でない
+                 * の逆の条件を満たす場合に例外を投げる
+                 * つまり、null または 空 の場合に例外を投げる
+                 * https://qiita.com/takaya901/items/393a3afd2c7b256af6e7
+                 * 上記の条件では、以下の2つのケースのいずれかに当てはまる場合にtrueとなります：
+                 * node.CorrespondIndexList が null である。
+                 * node.CorrespondIndexList の要素数が 0 である。
+                 */
+                if (!(node.CorrespondIndexList != null && node.CorrespondIndexList.Count > 0))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append($"nodeのCorrespondIndexListがnullまたは空です").Append(Environment.NewLine);
+                    throw new Exception(sb.ToString());
+                }
+
+                foreach (var correspondIndex in node.CorrespondIndexList)
+                {
+                    if (correspondIndex == -1)
+                    {
+                        Debug.WriteLine($"{node.Index} is -1");
+                        continue;
+                    }
+
+                    // 対応する中心線のnodeの座標を取得
+                    // これがこれからする回転の原点となる
+                    float[] coordCenterlineNodeGlobal = new float[3] {
+                        centerline.Nodes[correspondIndex].X,
+                        centerline.Nodes[correspondIndex].Y,
+                        centerline.Nodes[correspondIndex].Z,
+                    };
+
+                    // 移動前のメッシュのノードの座標を取得
+                    float[] coordMeshNodeGlobal = new float[3]
+                    {
+                        node.X,
+                        node.Y,
+                        node.Z,
+                    };
+
+                    // 中心線のnodeの座標をローカルの原点とする座標軸とする、メッシュのノードの座標を計算
+                    float[] coordMeshNodeLocal = new float[3]
+                    {
+                        coordMeshNodeGlobal[0] - coordCenterlineNodeGlobal[0],
+                        coordMeshNodeGlobal[1] - coordCenterlineNodeGlobal[1],
+                        coordMeshNodeGlobal[2] - coordCenterlineNodeGlobal[2],
+                    };
+
+                    // 中心線Nodeから表面Nodeへの単位ベクトル
+                    // NormalizeVector(float[] vec)
+                    // var vecNormalized = Utility.NormalizeVector(vec);
+                    var coordMeshNodeLocal_normalized = Utility.NormalizeVector(coordMeshNodeLocal);
+
+                    // 差分ベクトルを計算
+                    float[] moveRadiusDirection = new float[3]
+                    {
+                        centerline.Radius[correspondIndex]*coordMeshNodeLocal_normalized[0]-coordMeshNodeLocal[0],
+                        centerline.Radius[correspondIndex]*coordMeshNodeLocal_normalized[1]-coordMeshNodeLocal[1],
+                        centerline.Radius[correspondIndex]*coordMeshNodeLocal_normalized[2]-coordMeshNodeLocal[2],
+                    };
+
+                    // ここで、移動量の和に足しこみ
+                    // 実際の移動量は、この後に平均をとる
+                    node.XMovedSum += moveRadiusDirection[0];
+                    node.YMovedSum += moveRadiusDirection[1];
+                    node.ZMovedSum += moveRadiusDirection[2];
+                }
+            }
+        }
+
+
         private void ResetMeshDeformation(Mesh mesh)
         {
             foreach (var node in mesh.Nodes)
@@ -658,6 +737,7 @@ namespace VascularModelDeformation
                 this.ResetMeshDeformation(mesh);
                 this.CalculateMeshDeformationRotation(mesh, centerline);
                 this.CalculateMeshDeformationParallel(mesh, centerline);
+                CalculateMeshDeformationRadius(mesh, centerline);
             }
             catch
             {
@@ -681,7 +761,7 @@ namespace VascularModelDeformation
                     throw new Exception(sb.ToString());
                 }
 
-                // 今までの移動量の総和を、CorrespondIndexの数で割って平均をとる
+                // 今までの移動量の総和を、CorrespondIndexの数で割って平均をとる ( (平行移動による移動量 + 回転後の、中心線Nodeから表面Nodeへのベクトル + 移動前の中心線の座標) の平均)
                 node.X = node.XMovedSum / node.CorrespondIndexList.Count;
                 node.Y = node.YMovedSum / node.CorrespondIndexList.Count;
                 node.Z = node.ZMovedSum / node.CorrespondIndexList.Count;
@@ -708,10 +788,6 @@ namespace VascularModelDeformation
                 Environment.Exit(0);
             }
         }
-
-
-
-
 
     }
 }

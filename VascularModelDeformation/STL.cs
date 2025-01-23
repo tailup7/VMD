@@ -35,6 +35,7 @@ namespace VascularModelDeformation
              */
             foreach (var triangle in triangles)
             {
+
                 int a, b, c = 0;
                 if (hashSetNode.Add(triangle.N0))
                 {

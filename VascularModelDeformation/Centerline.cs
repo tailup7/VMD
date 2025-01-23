@@ -12,6 +12,8 @@ namespace VascularModelDeformation
         public Node InletLocation { get; private set; }
         public Node OutletLocation { get; private set; }
 
+        public List<float> Radius { get; set; } = new List<float>();
+
         /// <summary>
         /// centerline.txtを解釈するコード
         /// centerline.txtは一行目に、
@@ -66,6 +68,7 @@ namespace VascularModelDeformation
             this.OutletLocation.Y = nodes[outletIndex].Y;
             this.OutletLocation.Z = nodes[outletIndex].Z;
         }
+
         /// <summary>
         /// 回転行列の計算
         /// </summary>
