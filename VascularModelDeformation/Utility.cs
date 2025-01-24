@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using MS.WindowsAPICodePack.Internal;
 
 namespace VascularModelDeformation
 {
@@ -37,6 +38,22 @@ namespace VascularModelDeformation
             }
             return res;
         }
+        /// <summary>
+        /// 点の差分を計算 (引数1: 始点　引数2: 終点). 3成分である前提
+        /// </summary>
+        /// <param name="point1"></param>
+        /// <param name="point2"></param>
+        /// <returns></returns>
+        public static float[] VectorDifference(float[] point1, float[] point2)
+        {
+            float[] vector = new float[3];
+            for (int i = 0; i < 3; i++)
+            {
+                vector[i] = point2[i] - point1[i];
+            }
+            return vector;
+        }
+
         /// <summary>
         /// matrixとvectorの掛け算
         /// 戻り値はvector
@@ -422,6 +439,45 @@ namespace VascularModelDeformation
                 }
                 counter++;
             }
+        }
+
+        /// <summary>
+        /// 7点を用いた移動平均を施す
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static List<float> MovingAverage7 (List<float> data)
+        {
+            List<float> filterd = new List<float>(new float[data.Count]);
+            if (data.Count < 7)
+            {
+                Console.WriteLine("Input list must contain at least 7 elements.");
+                return data;
+            }
+            for (int i = 0; i < data.Count; i++)
+            {
+                if (i==0)
+                {
+                    filterd[i] = (data[i] + data[i + 1]) / 2;
+                }
+                else if (i==data.Count-1)
+                {
+                    filterd[i] = (data[i] + data[i - 1]) / 2;
+                }
+                else if (i==1 || i ==data.Count-2)
+                {
+                    filterd[i] = (data[i - 1] + data[i] + data[i+1]) / 3;
+                }
+                else if (i==2 || i==data.Count-3)
+                {
+                    filterd[i] = (data[i-2]+data[i - 1] + data[i] + data[i + 1] + data[i+2]) / 5;
+                }
+                else
+                {
+                    filterd[i] = (data[i - 3] + data[i - 2] + data[i - 1] + data[i] + data[i + 1] + data[i + 2] + data[i + 3]) / 7 ;
+                }
+            }
+            return filterd;
         }
 
         //

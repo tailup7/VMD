@@ -348,6 +348,12 @@ namespace VascularModelDeformation
                     filePath = ofd.FileName;
                  }
             }
+            // ファイルが選択されなかった場合
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return new List<float> { 0 };
+            }
+
             string[] lines = File.ReadAllLines(filePath);
             List<float> radius = new List<float>();
             try
