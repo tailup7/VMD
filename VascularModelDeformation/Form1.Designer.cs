@@ -80,10 +80,12 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(391, 215);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.Size = new System.Drawing.Size(292, 15);
             this.label1.TabIndex = 5;
+            this.label1.Text = "形状(*.stl)と中心線(*.txt)から半径を計算する。";
             // 
             // label2
             // 
@@ -93,7 +95,6 @@
             this.label2.Size = new System.Drawing.Size(528, 15);
             this.label2.TabIndex = 4;
             this.label2.Text = "Button4の説明 : 最初に5回ファイルの入力を求められるので、次の順で入力してください。";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -131,7 +132,6 @@
             this.label6.Size = new System.Drawing.Size(266, 15);
             this.label6.TabIndex = 9;
             this.label6.Text = "Button 2 →3 (→ 5) → 4 の順に実行する";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // button5
             // 
