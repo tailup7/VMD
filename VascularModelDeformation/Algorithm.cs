@@ -203,36 +203,14 @@ namespace VascularModelDeformation
             }
         }
         /// <summary>
-        /// 表面Nodeに最近接する中心線Nodeのindex
-        /// </summary>
-        /// <param name="nodesCenterline"></param>
-        /// <param name="stl"></param>
-        public static void CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode(List<NodeCenterline> nodesCenterline, Node surfaceNode)
-        {
-                int index = -1;
-                float minDistance = float.MaxValue;
-                for (int i = 0; i < nodesCenterline.Count; i++)
-                {
-                    Node nC = nodesCenterline[i];
-                    float distance = surfaceNode.Distance(nC);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        index = i;
-                    }
-                }
-                surfaceNode.CorrespondCenterlineIndex = index;
-        }
-        /// <summary>
-        /// (中心線Nodeと血管内宮表面Nodeの対応を求め)  中心線 Edge 周りの平均半径を計算する
+        /// (中心線Nodeと血管内宮表面Nodeの対応を求め)  中心線 Node 周りの平均半径を計算する
         /// </summary>
         /// <param name="nodesCenterline"></param>
         /// <param name="stl"></param>
         public static List<float> CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(List<NodeCenterline> nodesCenterline, STL stl)
         {
-            List<float> radius = new List<float>(new float[nodesCenterline.Count-1]);
-            List<float> radiusCountor = new List<float>(new float[nodesCenterline.Count-1]);
-
+            List<float> radius = new List<float>(new float[nodesCenterline.Count]);
+            List<float> radiusCountor = new List<float>(new float[nodesCenterline.Count]);
             foreach (var node in stl.Nodes)
             {
                 int index = -1;
@@ -248,17 +226,8 @@ namespace VascularModelDeformation
                     }
                 }
                 node.CorrespondCenterlineIndex = index;
-                (float [] projectionVec,float[] centerlineToSurfaceNodeVec, bool ID) = calculateEdgeRadius(node, nodesCenterline);
-                if (ID)
-                {
-                    radius[index] += Utility.GetVecLength(centerlineToSurfaceNodeVec);   
-                    radiusCountor[index] += 1.0f;
-                }
-                else
-                {
-                    radius[index-1] += Utility.GetVecLength(centerlineToSurfaceNodeVec);
-                    radiusCountor[index-1] += 1.0f;
-                }
+                radius[index] += minDistance;
+                radiusCountor[index] += 1.0f;
             }
             for (int i = 0 ; i <radius.Count; i++)
             {
@@ -270,108 +239,6 @@ namespace VascularModelDeformation
             return radius;
         }
 
-        public static (float[], float[], bool) calculateEdgeRadius(Node surfaceNode, List<NodeCenterline> nodesCenterline)
-        {
-            bool correspondEdgeIDisSameToNodeID = true;
-            float[] surfaceNodeVec = new float[3];
-            surfaceNodeVec[0] = surfaceNode.X;
-            surfaceNodeVec[1] = surfaceNode.Y;
-            surfaceNodeVec[2] = surfaceNode.Z;
-
-            float[] correspondCenterlineNodeVec = new float[3];
-            correspondCenterlineNodeVec[0] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex].X;
-            correspondCenterlineNodeVec[1] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex].Y;
-            correspondCenterlineNodeVec[2] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex].Z;
-
-            float[] preNodeVec = new float[3];
-            if (surfaceNode.CorrespondCenterlineIndex == 0)
-            {
-                preNodeVec = correspondCenterlineNodeVec;
-            }
-            else
-            {
-                preNodeVec[0] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex - 1].X;
-                preNodeVec[1] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex - 1].Y;
-                preNodeVec[2] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex - 1].Z;
-            }
-
-            float[] nextNodeVec = new float[3];
-            if (surfaceNode.CorrespondCenterlineIndex == nodesCenterline.Count - 1)
-            {
-                nextNodeVec = correspondCenterlineNodeVec;
-            }
-            else
-            {
-                nextNodeVec[0] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex + 1].X;
-                nextNodeVec[1] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex + 1].Y;
-                nextNodeVec[2] = nodesCenterline[surfaceNode.CorrespondCenterlineIndex + 1].Z;
-            }
-
-            float[] preEdgeVec = Utility.VectorDifference(preNodeVec, correspondCenterlineNodeVec);
-            float[] nextEdgeVec = Utility.VectorDifference(correspondCenterlineNodeVec, nextNodeVec);
-            float[] preNodeToSurfaceNodeVec = Utility.VectorDifference(preNodeVec, surfaceNodeVec);
-            float[] nextNodeToSurfaceNodeVec = Utility.VectorDifference(nextNodeVec, surfaceNodeVec);
-            float[] projectionVec = new float[3];
-            float[] projectionVecTemp = new float[3];
-            float[] centerlineToSurfaceNodeVec = new float[3];
-            float[] centerlineToSurfaceNodeVecTemp = new float[3];
-
-            float a = 0;
-            if (Utility.DotProduct(preEdgeVec, preEdgeVec)!=0)
-            { 
-                a = Utility.DotProduct(preEdgeVec, preNodeToSurfaceNodeVec) / Utility.DotProduct(preEdgeVec, preEdgeVec);
-            }
-
-            float b = 0;
-            if (Utility.DotProduct(nextEdgeVec, nextEdgeVec) != 0)
-            {
-                b = Utility.DotProduct(nextEdgeVec, preNodeToSurfaceNodeVec) / Utility.DotProduct(nextEdgeVec, nextEdgeVec);
-            }
-
-            if (a > 0 && a < 1 && b > 0 && b < 1)
-            {
-                for (int i =0;i<3; i++)
-                {
-                    projectionVecTemp[i] = preNodeVec[i] + a * preEdgeVec[i];
-                    projectionVec[i] = correspondCenterlineNodeVec[i] + b * nextEdgeVec[i];
-                }
-                centerlineToSurfaceNodeVecTemp = Utility.VectorDifference(projectionVecTemp, surfaceNodeVec);
-                centerlineToSurfaceNodeVec = Utility.VectorDifference(projectionVec, surfaceNodeVec);
-                if(Utility.GetVecLength(centerlineToSurfaceNodeVecTemp) < Utility.GetVecLength(centerlineToSurfaceNodeVec))
-                {
-                    projectionVec = projectionVecTemp;
-                    centerlineToSurfaceNodeVec = centerlineToSurfaceNodeVecTemp;
-                    correspondEdgeIDisSameToNodeID = false;
-                }
-            }
-            else if (a>0 && a<1)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    projectionVec[i] = preNodeVec[i] + a * preEdgeVec[i];
-                }
-                centerlineToSurfaceNodeVec = Utility.VectorDifference(projectionVec, surfaceNodeVec);
-                correspondEdgeIDisSameToNodeID = false;
-            }
-            else if (b > 0 && b < 1)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    projectionVec[i] = correspondCenterlineNodeVec[i] + b * nextEdgeVec[i];
-                }
-                centerlineToSurfaceNodeVec = Utility.VectorDifference(projectionVec, surfaceNodeVec);
-            }
-            else
-            {
-                projectionVec = correspondCenterlineNodeVec;
-                centerlineToSurfaceNodeVec = Utility.VectorDifference(projectionVec, surfaceNodeVec);
-                if (b==0)
-                {
-                    correspondEdgeIDisSameToNodeID = false; // 終点付近の表面Nodeだけ、対応するEdgeIDは全てCorrespondCenterlineID -1 にする必要あり
-                }
-            }
-            return (projectionVec, centerlineToSurfaceNodeVec, correspondEdgeIDisSameToNodeID );
-        }
 
     }
 }

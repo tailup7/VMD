@@ -737,7 +737,7 @@ namespace VascularModelDeformation
                 this.ResetMeshDeformation(mesh);
                 this.CalculateMeshDeformationRotation(mesh, centerline);
                 this.CalculateMeshDeformationParallel(mesh, centerline);
-                //CalculateMeshDeformationRadius(mesh, centerline);
+                CalculateMeshDeformationRadius(mesh, centerline);
             }
             catch
             {
@@ -750,7 +750,7 @@ namespace VascularModelDeformation
         /// 計算した総和移動量をもとに、実際にメッシュを変形させる
         /// </summary>
         /// <param name="mesh"></param>
-        public void ExecuteMeshDeformation(Mesh mesh, Centerline centerlineFinalPosition)
+        public void ExecuteMeshDeformation(Mesh mesh)
         {
             foreach (var node in mesh.Nodes)
             {
@@ -765,38 +765,7 @@ namespace VascularModelDeformation
                 node.X = node.XMovedSum / node.CorrespondIndexList.Count;
                 node.Y = node.YMovedSum / node.CorrespondIndexList.Count;
                 node.Z = node.ZMovedSum / node.CorrespondIndexList.Count;
-
-                // centerlineFinalPosition.Radiusのすべての要素が0 (radius.txtが選択されていない) 場合はMeshDeformationRadiusを呼び出さない
-                if (centerlineFinalPosition.Radius.All(radius => radius == 0))
-                {
-                    // ここでMeshDeformationRadiusの呼び出しをスキップ
-                    continue; 
-                }
-                MeshDeformationRadius(node, centerlineFinalPosition);
             }
-        }
-
-        public void MeshDeformationRadius (Node surfaceNode, Centerline centerlineFinalPosition)
-        {
-            Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode(centerlineFinalPosition.Nodes, surfaceNode);
-            (float[] projectionVec, float[] centerlineToSurfaceNodeVec, bool ID) = Algorithm.calculateEdgeRadius(surfaceNode, centerlineFinalPosition.Nodes);
-            float r = 0;
-            if (surfaceNode.CorrespondCenterlineIndex == (centerlineFinalPosition.Nodes.Count-1))
-            {
-                r = centerlineFinalPosition.Radius[centerlineFinalPosition.Nodes.Count - 2];
-            }
-            else
-            {
-                r = centerlineFinalPosition.Radius[surfaceNode.CorrespondCenterlineIndex];
-            }
-            float[] movedNodeVec = new float[3];
-            for (int i = 0; i < 3; i++)
-            {
-                movedNodeVec[i] = projectionVec[i] + r/Utility.GetVecLength(centerlineToSurfaceNodeVec)*centerlineToSurfaceNodeVec[i];
-            }
-            surfaceNode.X = movedNodeVec[0];
-            surfaceNode.Y = movedNodeVec[1];
-            surfaceNode.Z = movedNodeVec[2];
         }
 
         /// <summary>
@@ -806,12 +775,12 @@ namespace VascularModelDeformation
         /// </summary>
         /// <param name="mesh"></param>
         /// <param name="centerline"></param>
-        public void MeshDeformationMultiple(Mesh mesh, Centerline centerline, Centerline centerlineFinalPosition)
+        public void MeshDeformationMultiple(Mesh mesh, Centerline centerline)
         {
             try
             {
                 this.CalculateMeshDeformation(mesh, centerline);
-                this.ExecuteMeshDeformation(mesh,centerlineFinalPosition);
+                this.ExecuteMeshDeformation(mesh);
             }
             catch (Exception e)
             {
