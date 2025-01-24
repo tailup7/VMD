@@ -60,7 +60,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(158, 166);
+            this.button3.Location = new System.Drawing.Point(31, 163);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(315, 52);
             this.button3.TabIndex = 2;
@@ -70,7 +70,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(158, 256);
+            this.button4.Location = new System.Drawing.Point(114, 309);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(137, 23);
             this.button4.TabIndex = 3;
@@ -88,26 +88,27 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(170, 282);
+            this.label2.Location = new System.Drawing.Point(126, 335);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(528, 15);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Button4の説明 : 最初に4回ファイルの入力を求められるので、次の順で入力してください。";
+            this.label2.Text = "Button4の説明 : 最初に5回ファイルの入力を求められるので、次の順で入力してください。";
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(253, 297);
+            this.label3.Location = new System.Drawing.Point(50, 359);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(426, 15);
+            this.label3.Size = new System.Drawing.Size(679, 15);
             this.label3.TabIndex = 6;
-            this.label3.Text = "基準中心線.txt,    目標中心線.txt,    test.ply,     MeshOriginal.msh";
+            this.label3.Text = "基準中心線.txt,    目標中心線.txt,    目標半径.txt(これは選択しなくても良い)   test.ply,     MeshOriginal.m" +
+    "sh";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(205, 321);
+            this.label4.Location = new System.Drawing.Point(144, 381);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(493, 15);
             this.label4.TabIndex = 7;
@@ -116,7 +117,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(205, 336);
+            this.label5.Location = new System.Drawing.Point(144, 410);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(277, 15);
             this.label5.TabIndex = 8;
@@ -127,14 +128,14 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 23);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(256, 15);
+            this.label6.Size = new System.Drawing.Size(266, 15);
             this.label6.TabIndex = 9;
-            this.label6.Text = "Button 2 →3 → 5 → 4 の順に実行する";
+            this.label6.Text = "Button 2 →3 (→ 5) → 4 の順に実行する";
             this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(526, 169);
+            this.button5.Location = new System.Drawing.Point(394, 166);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(250, 46);
             this.button5.TabIndex = 11;

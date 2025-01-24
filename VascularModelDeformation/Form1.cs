@@ -91,6 +91,7 @@ namespace VascularModelDeformation
             Centerline centerline = new Centerline();
             (centerline, this.DirPath) = this.IO.ReadCenterline();
             List<float> radius = Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(centerline.Nodes, stl);
+            radius = Utility.MovingAverage7(radius);
             this.IO.WriteRadius(radius, this.DirPath, "radius.txt");
         }
 
@@ -115,7 +116,7 @@ namespace VascularModelDeformation
                 // this.IO.WriteVTKPolydataCenterline(model.Centerline, test, 0);
                 // this.IO.WriteVTKPolydataCenterline(model.CenterlineFinalPosition, test, 1);
                 model.SurfaceCorrespondIndex = this.IO.ReadPLY();
-                model.Centerline.Radius = this.IO.ReadRadius();
+                model.CenterlineFinalPosition.Radius = this.IO.ReadRadius(); // 目標中心線をセットする
                 (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
                 model.Mesh.AnalyzeMesh();
 
@@ -132,7 +133,7 @@ namespace VascularModelDeformation
                 model.MeshInnerSurface = model.Mesh.MakeInnerSurfaceMesh(model.Mesh);
                 // this.IO.WriteVTKSurfaceWithCorrespondIndex(model.MeshOuterSurface, test, "MostOuterSurface-before.vtk");
                 //model.MeshDeformation(model.MeshSurfaceAndPrismLayer, model.Centerline);
-                model.MeshDeformationMultiple(model.MeshSurfaceAndPrismLayer, model.Centerline);
+                model.MeshDeformationMultiple(model.MeshSurfaceAndPrismLayer, model.Centerline, model.CenterlineFinalPosition);
                 // this.IO.WriteVTKMesh(model.MeshSurfaceAndPrismLayer, test, "eeeeeeeeeeeeeeeee.vtk");
                 model.MeshSurfaceAndPrismLayer.AllEdgeSwap();
                 model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.MeshSurfaceAndPrismLayer); // これだと変形後のものが吐き出せる
