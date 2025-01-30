@@ -179,5 +179,18 @@ namespace VascularModelDeformation
             }
             GC.Collect();
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string dirPath = null;
+            IO io = new IO();
+            List<Triangle> triangles1 = new List<Triangle>();
+            (triangles1, dirPath) = this.IO.ReadSTLASCIITemp();
+            STL stl1 = new STL(triangles1, 1);
+            List<Triangle> triangles2 = this.IO.ReadSTLASCII();
+            STL stl2 = new STL(triangles2, 1);
+            Algorithm.HausdorffDistance(stl2.UniqueNodes, stl1.UniqueNodes);
+            io.WriteVTKPoints(stl1.UniqueNodes, dirPath, "hausdorffDistance.vtk");
+        }
     }
 }

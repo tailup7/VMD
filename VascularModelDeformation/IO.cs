@@ -397,6 +397,26 @@ namespace VascularModelDeformation
             }
         }
 
+
+        public (List<Triangle>, string) ReadSTLASCIITemp()
+        {
+            string dirPath = null;
+            string stlFilePath = null;
+            string[] lines = null;
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "stl file|*.stl";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Debug.WriteLine($"{ofd.FileName}");
+                    dirPath = Path.GetDirectoryName(ofd.FileName);
+                    lines = File.ReadAllLines(ofd.FileName);
+                    stlFilePath = ofd.FileName;
+                }
+            }
+            List<Triangle> triangles = ReadSTLASCII(stlFilePath);
+            return (triangles, dirPath);
+        }
         public List<Triangle> ReadSTLASCII()
         {
             string dirPath = null;
@@ -605,7 +625,58 @@ namespace VascularModelDeformation
                 sw.WriteLine($"endsolid surface");
             }
         }
-
+        public void WriteVTKPoints(List<Node> nodes, string dirPath, string fileName)
+        {
+            Debug.WriteLine("WriteVTKPoints");
+            string filePath = Path.Combine(dirPath, fileName);
+            Debug.WriteLine($"{filePath}");
+            using (StreamWriter sw = new StreamWriter(filePath))
+            {
+                string fixHeader = WriteVTKFixHeader();
+                string datasetHeader = WriteVTKDatasetPolydata();
+                string pointsHeader = WriteVTKPointsHeader(nodes.Count);
+                string pointsList = WriteVTKPointsList(nodes);
+                string test = WriteVTKPolygonsHeader(nodes);
+                string testtest = WriteVTKPolygonsList(nodes);
+                string testtesttest = WriteVTKPolygonsTest(nodes);
+                sw.WriteLine(fixHeader);
+                sw.WriteLine(datasetHeader);
+                sw.WriteLine(pointsHeader);
+                sw.WriteLine(pointsList);
+                sw.WriteLine(test);
+                sw.WriteLine(testtest);
+                sw.WriteLine(testtesttest);
+            }
+        }
+        public string WriteVTKPolygonsTest(List<Node> nodes)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"CELL_DATA {nodes.Count}").Append(Environment.NewLine);
+            sb.Append($"FIELD FieldData {1}").Append(Environment.NewLine);
+            sb.Append($"haus 1 {nodes.Count} float").Append(Environment.NewLine);
+            foreach (var node in nodes)
+            {
+                sb.Append($"{node.NearestDistance}").Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
+        private string WriteVTKDatasetPolydata()
+        {
+            return "DATASET POLYDATA" + Environment.NewLine;
+        }
+        private string WriteVTKPolygonsHeader(List<Node> nodes)
+        {
+            return $"POLYGONS {nodes.Count} {nodes.Count * 2}";
+        }
+        private string WriteVTKPolygonsList(List<Node> nodes)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var node in nodes)
+            {
+                sb.Append(1.ToString()).Append(" ").Append(node.Index).Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
         /// <summary>
         /// vtkを出力するための関数
         /// </summary>
@@ -692,6 +763,7 @@ namespace VascularModelDeformation
         {
             return "DATASET UNSTRUCTURED_GRID" + Environment.NewLine;
         }
+
         private string WriteVTKPointsHeader(int numberOfPoints)
         {
             StringBuilder sb = new StringBuilder();

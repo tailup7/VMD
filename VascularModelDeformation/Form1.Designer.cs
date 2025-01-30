@@ -39,6 +39,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -50,7 +51,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(158, 60);
+            this.button2.Location = new System.Drawing.Point(180, 83);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(261, 69);
             this.button2.TabIndex = 1;
@@ -60,9 +61,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(31, 163);
+            this.button3.Location = new System.Drawing.Point(0, 178);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(315, 52);
+            this.button3.Size = new System.Drawing.Size(278, 52);
             this.button3.TabIndex = 2;
             this.button3.Text = "Button3. input : gmsh22.stl, centerline.txt  output : test.ply";
             this.button3.UseVisualStyleBackColor = true;
@@ -70,7 +71,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(114, 309);
+            this.button4.Location = new System.Drawing.Point(234, 287);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(137, 23);
             this.button4.TabIndex = 3;
@@ -81,7 +82,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(391, 215);
+            this.label1.Location = new System.Drawing.Point(345, 233);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(292, 15);
             this.label1.TabIndex = 5;
@@ -135,7 +136,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(394, 166);
+            this.button5.Location = new System.Drawing.Point(335, 184);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(250, 46);
             this.button5.TabIndex = 11;
@@ -143,11 +144,22 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(617, 41);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(162, 41);
+            this.button6.TabIndex = 12;
+            this.button6.Text = "button6. calculate Hausdorff distance";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -179,6 +191,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button6;
     }
 }
 
