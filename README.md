@@ -1,5 +1,5 @@
 # Vascular Model Deformation
-This is the softwere to deform vascular model for CFD by using Gmsh.
+This is the softwere to generate and deform vascular model for CFD by using Gmsh.
 
 ## Environment
 OS : windows 11 <br>
