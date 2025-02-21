@@ -39,6 +39,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -50,7 +51,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(158, 60);
+            this.button2.Location = new System.Drawing.Point(180, 83);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(261, 69);
             this.button2.TabIndex = 1;
@@ -60,9 +61,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(158, 166);
+            this.button3.Location = new System.Drawing.Point(0, 178);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(315, 52);
+            this.button3.Size = new System.Drawing.Size(278, 52);
             this.button3.TabIndex = 2;
             this.button3.Text = "Button3. input : gmsh22.stl, centerline.txt  output : test.ply";
             this.button3.UseVisualStyleBackColor = true;
@@ -70,7 +71,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(158, 256);
+            this.button4.Location = new System.Drawing.Point(234, 287);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(137, 23);
             this.button4.TabIndex = 3;
@@ -80,34 +81,36 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(345, 233);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.Size = new System.Drawing.Size(292, 15);
             this.label1.TabIndex = 5;
+            this.label1.Text = "形状(*.stl)と中心線(*.txt)から半径を計算する。";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(170, 282);
+            this.label2.Location = new System.Drawing.Point(126, 335);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(528, 15);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Button4の説明 : 最初に4回ファイルの入力を求められるので、次の順で入力してください。";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
+            this.label2.Text = "Button4の説明 : 最初に5回ファイルの入力を求められるので、次の順で入力してください。";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(253, 297);
+            this.label3.Location = new System.Drawing.Point(50, 359);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(426, 15);
+            this.label3.Size = new System.Drawing.Size(679, 15);
             this.label3.TabIndex = 6;
-            this.label3.Text = "基準中心線.txt,    目標中心線.txt,    test.ply,     MeshOriginal.msh";
+            this.label3.Text = "基準中心線.txt,    目標中心線.txt,    目標半径.txt(これは選択しなくても良い)   test.ply,     MeshOriginal.m" +
+    "sh";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(205, 321);
+            this.label4.Location = new System.Drawing.Point(144, 381);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(493, 15);
             this.label4.TabIndex = 7;
@@ -116,7 +119,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(205, 336);
+            this.label5.Location = new System.Drawing.Point(144, 410);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(277, 15);
             this.label5.TabIndex = 8;
@@ -127,14 +130,13 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 23);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(256, 15);
+            this.label6.Size = new System.Drawing.Size(266, 15);
             this.label6.TabIndex = 9;
-            this.label6.Text = "Button 2 →3 → 5 → 4 の順に実行する";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
+            this.label6.Text = "Button 2 →3 (→ 5) → 4 の順に実行する";
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(526, 169);
+            this.button5.Location = new System.Drawing.Point(335, 184);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(250, 46);
             this.button5.TabIndex = 11;
@@ -142,11 +144,22 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(617, 41);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(162, 41);
+            this.button6.TabIndex = 12;
+            this.button6.Text = "button6. calculate Hausdorff distance";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -178,6 +191,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button6;
     }
 }
 

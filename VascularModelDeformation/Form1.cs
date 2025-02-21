@@ -91,6 +91,7 @@ namespace VascularModelDeformation
             Centerline centerline = new Centerline();
             (centerline, this.DirPath) = this.IO.ReadCenterline();
             List<float> radius = Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(centerline.Nodes, stl);
+            radius = Utility.MovingAverage7(radius);
             this.IO.WriteRadius(radius, this.DirPath, "radius.txt");
         }
 
@@ -115,7 +116,7 @@ namespace VascularModelDeformation
                 // this.IO.WriteVTKPolydataCenterline(model.Centerline, test, 0);
                 // this.IO.WriteVTKPolydataCenterline(model.CenterlineFinalPosition, test, 1);
                 model.SurfaceCorrespondIndex = this.IO.ReadPLY();
-                model.Centerline.Radius = this.IO.ReadRadius();
+                model.CenterlineFinalPosition.Radius = this.IO.ReadRadius(); // 目標中心線をセットする
                 (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
                 model.Mesh.AnalyzeMesh();
 
@@ -132,7 +133,7 @@ namespace VascularModelDeformation
                 model.MeshInnerSurface = model.Mesh.MakeInnerSurfaceMesh(model.Mesh);
                 // this.IO.WriteVTKSurfaceWithCorrespondIndex(model.MeshOuterSurface, test, "MostOuterSurface-before.vtk");
                 //model.MeshDeformation(model.MeshSurfaceAndPrismLayer, model.Centerline);
-                model.MeshDeformationMultiple(model.MeshSurfaceAndPrismLayer, model.Centerline);
+                model.MeshDeformationMultiple(model.MeshSurfaceAndPrismLayer, model.Centerline, model.CenterlineFinalPosition);
                 // this.IO.WriteVTKMesh(model.MeshSurfaceAndPrismLayer, test, "eeeeeeeeeeeeeeeee.vtk");
                 model.MeshSurfaceAndPrismLayer.AllEdgeSwap();
                 model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.MeshSurfaceAndPrismLayer); // これだと変形後のものが吐き出せる
@@ -179,16 +180,20 @@ namespace VascularModelDeformation
             GC.Collect();
         }
 
-        private void label2_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 2つのstlデータから、表面点群間で hausdorff 距離を計算
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button6_Click(object sender, EventArgs e)
         {
-
+            List<Triangle> triangles1 = new List<Triangle>();
+            STL stl1 = new STL(triangles1, 1);
+            (triangles1, this.DirPath) = this.IO.ReadSTLASCIITemp();
+            List<Triangle> triangles2 = this.IO.ReadSTLASCII();
+            STL stl2 = new STL(triangles2, 1);
+            Algorithm.HausdorffDistance(stl2.UniqueNodes, stl1.UniqueNodes);
+            this.IO.WriteVTKPoints(stl1.UniqueNodes, this.DirPath, "hausdorffDistance.vtk");
         }
-
-        private void label6_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
     }
 }
