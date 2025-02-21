@@ -84,16 +84,16 @@ namespace VascularModelDeformation
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button5_Click(object sender, EventArgs e)
-        {
-            List<Triangle> triangles = this.IO.ReadSTLASCII();
-            STL stl = new STL(triangles);
-            Centerline centerline = new Centerline();
-            (centerline, this.DirPath) = this.IO.ReadCenterline();
-            List<float> radius = Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(centerline.Nodes, stl);
-            radius = Utility.MovingAverage7(radius);
-            this.IO.WriteRadius(radius, this.DirPath, "radius.txt");
-        }
+        //private void button5_Click(object sender, EventArgs e)
+        //{
+        //    List<Triangle> triangles = this.IO.ReadSTLASCII();
+        //    STL stl = new STL(triangles);
+        //    Centerline centerline = new Centerline();
+        //    (centerline, this.DirPath) = this.IO.ReadCenterline();
+        //    List<float> radius = Algorithm.CorrespondenceBetweenCenterlineNodeAndLumenalSurfaceNode_and_calculateRadius(centerline.Nodes, stl);
+        //    radius = Utility.MovingAverage7(radius);
+        //    this.IO.WriteRadius(radius, this.DirPath, "radius.txt");
+        //}
 
         /// <summary>
         /// Gmshで作成した解析モデルを、基準中心線と目標中心線から計算される移動変形量と、Button5で得る目標半径に従って移動させ、目標解析モデルを得る
@@ -116,7 +116,7 @@ namespace VascularModelDeformation
                 // this.IO.WriteVTKPolydataCenterline(model.Centerline, test, 0);
                 // this.IO.WriteVTKPolydataCenterline(model.CenterlineFinalPosition, test, 1);
                 model.SurfaceCorrespondIndex = this.IO.ReadPLY();
-                model.CenterlineFinalPosition.Radius = this.IO.ReadRadius(); // 目標中心線をセットする
+                //model.CenterlineFinalPosition.Radius = this.IO.ReadRadius(); // 目標中心線をセットする
                 (model.Mesh, this.DirPath) = this.IO.ReadGMSH22Ori();
                 model.Mesh.AnalyzeMesh();
 

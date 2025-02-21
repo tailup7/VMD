@@ -16,8 +16,8 @@ gmsh.initialize(sys.argv)
 # input parameter
 meshSize = 0.5 # mesh size
 N = 5 # number of layers
-r = 1.1 # ration
-h = 0.05 # first_layer_thickness
+r = 1.2 # ration
+h = 0.08 # first_layer_thickness
 # ===============================================
 
 # ===============================================
@@ -40,7 +40,7 @@ def OptionSetting():
     # Visualization of Entity in dimension 0 ON or OFF
     gmsh.option.setNumber("Geometry.PointLabels", 1)
     # Specify mesh line thickness
-    gmsh.option.setNumber("Mesh.LineWidth", 4)
+    gmsh.option.setNumber("Mesh.LineWidth", 2)
     # In gmsh, mouse wheel zoon on/zoom off is the opposite of paraview, so it should be with paraview
     gmsh.option.setNumber("General.MouseInvertZoom", 1)
     # Showing the rectangular memory surrounding the model so that the size of the model can be easily checked

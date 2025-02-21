@@ -61,7 +61,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(0, 178);
+            this.button3.Location = new System.Drawing.Point(163, 189);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(278, 52);
             this.button3.TabIndex = 2;
@@ -81,12 +81,10 @@
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(345, 233);
+            this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(292, 15);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "形状(*.stl)と中心線(*.txt)から半径を計算する。";
+            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.TabIndex = 14;
             // 
             // label2
             // 
@@ -136,13 +134,10 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(335, 184);
+            this.button5.Location = new System.Drawing.Point(0, 0);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(250, 46);
-            this.button5.TabIndex = 11;
-            this.button5.Text = "button5. input : *.stl,  centerline.txt      output : radius.txt";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 13;
             // 
             // button6
             // 
