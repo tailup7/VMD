@@ -126,7 +126,7 @@ namespace VascularModelDeformation
                 model.Mesh.AssignFaceCorrespondIndexToNodeCorrespondIndexList();
 
                 model.OrganizeMeshData();
-                model.RemoveUnneedPartMesh();
+                model.RemoveUnneedPartMesh(); // ここで MeshSurfaceAndPrismLayer を作る
                 model.Mesh.AnalyzeMesh();
                 model.MeshSurfaceAndPrismLayer.AnalyzeMesh();
                 model.MeshOuterSurface = model.Mesh.MakeOuterSurface(model.Mesh); // これだと変形前だよね
@@ -187,13 +187,15 @@ namespace VascularModelDeformation
         /// <param name="e"></param>
         private void button6_Click(object sender, EventArgs e)
         {
+            string dirPath = null;
+            IO io = new IO();
             List<Triangle> triangles1 = new List<Triangle>();
+            (triangles1, dirPath) = this.IO.ReadSTLASCIITemp();
             STL stl1 = new STL(triangles1, 1);
-            (triangles1, this.DirPath) = this.IO.ReadSTLASCIITemp();
             List<Triangle> triangles2 = this.IO.ReadSTLASCII();
             STL stl2 = new STL(triangles2, 1);
             Algorithm.HausdorffDistance(stl2.UniqueNodes, stl1.UniqueNodes);
-            this.IO.WriteVTKPoints(stl1.UniqueNodes, this.DirPath, "hausdorffDistance.vtk");
+            io.WriteVTKPoints(stl1.UniqueNodes, dirPath, "hausdorffDistance.vtk");
         }
     }
 }

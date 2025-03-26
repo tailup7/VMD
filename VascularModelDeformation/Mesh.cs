@@ -144,17 +144,17 @@ namespace VascularModelDeformation
                     {
                         // prismなので6点あるうちの
                         // 必要な最後の3点のみ取り出す
-                        int d = meshOut.Cells[i].NodesIndex[3] - 1;
-                        int e = meshOut.Cells[i].NodesIndex[4] - 1;
-                        int f = meshOut.Cells[i].NodesIndex[5] - 1;
-                        // 出力されるstlが外向きに法線を持つように
+                        int d = meshOut.Cells[i].NodesIndex[3] - 1;  
+                        int e = meshOut.Cells[i].NodesIndex[4] - 1;  
+                        int f = meshOut.Cells[i].NodesIndex[5] - 1;  
+                        // 出力されるstlが外向きに法線を持つように  
                         // d->e->f
                         // の順番ではなく
-                        // d->f->e
+                        // d->f->e    (内側向いてる......???)
                         Triangle triangle = new Triangle(meshOut.Nodes[d], meshOut.Nodes[f], meshOut.Nodes[e]);
                         meshOut.TriangleList.Add(triangle);
                     }
-                    allCounter++;    // 三角柱のindexの番号付けが、縦に外から数えるものだから、次のCells[i]は、ひとつ内側の三角柱
+                    allCounter++;   
                 }
             }
             return meshOut;
@@ -296,8 +296,8 @@ namespace VascularModelDeformation
                 return;                         
 
             int numberOfWallCells = this.NumberOfWallCells;                   // NumberOfWallCells: WALL上の三角形パッチの総数。
-            int numberOfPrismLayerCells = this.NumberOfPrismLayerCells;       // NumberOfPrismLayerCells : この血管モデルのプリズムセルの総数。
-            int numberOfLayer = (int)(numberOfPrismLayerCells / numberOfWallCells);   // プリズム層の数。
+            int numberOfPrismLayerCells = this.NumberOfPrismLayerCells;       // NumberOfPrismLayerCells : プリズムセルの総数。
+            int numberOfLayer = (int)(numberOfPrismLayerCells / numberOfWallCells);   // プリズム層の数
             this.NumberOfLayer = numberOfLayer;
             Debug.WriteLine($"{numberOfLayer}");
 
@@ -307,7 +307,7 @@ namespace VascularModelDeformation
                 this.CellsEachPrismLayer.Add(new List<Cell>()); 
             }
             int counter = 0;
-            foreach (var cell in this.CellsPrismLayer)                                // CellsPrismLayerは、全てのプリズムセルの集合。
+            foreach (var cell in this.CellsPrismLayer)                               
             {
                 if (cell.CellType == CellType.Prism)
                 {
@@ -497,7 +497,7 @@ namespace VascularModelDeformation
                     // elementは1-index
                     currentLine += 1;
                     var elementsNumber = int.Parse(lines[currentLine]);
-                    elements = new int[elementsNumber][];
+                    elements = new int[elementsNumber][]; // ジャグ配列、行列の宣言
                     for (int index = 0; index < elementsNumber; index++)
                     {
                         currentLine += 1;

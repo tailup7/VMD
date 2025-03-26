@@ -13,7 +13,7 @@ outputVTKPath = sys.argv[3]
 # ===============================================
 # パラメータ
 # 書き換えるのはここだけ
-meshSize = 0.5 # mesh size
+meshSize = 0.9 # mesh size
 # N = 5 # number of layers
 # r = 1.1 # ration
 # h = 0.05 # first_layer_thickness

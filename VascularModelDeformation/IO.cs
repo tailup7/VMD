@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
 
 namespace VascularModelDeformation
 {
@@ -434,7 +435,6 @@ namespace VascularModelDeformation
                 }
             }
             List<Triangle> triangles = ReadSTLASCII(stlFilePath);
-            Console.WriteLine($"Number of triangles read: {triangles.Count}");
             return triangles;
         }
         /// <summary>
@@ -451,18 +451,17 @@ namespace VascularModelDeformation
                 string line;
                 int numberOfTriangles = 0;
 
-                
                 // ファイルの先頭から"solid"が現れるまで読み込む
                 // 読み込んだ部分は無視するのでbreak
                 while ((line = reader.ReadLine()) != null)
                 {
-                    line = line.Trim();
                     if (line.StartsWith("solid"))
                     {
                         break;
                     }
                 }
 
+                // "facet"から始まる行を読み込んで、三角形を作成する
                 while ((line = reader.ReadLine()) != null)
                 {
                     line = line.Trim();
@@ -472,7 +471,7 @@ namespace VascularModelDeformation
                     }
                     if (line.StartsWith("facet"))
                     {
-                       
+                        // 法線ベクトルを読み込む
                         string[] normalLine = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float nx = float.Parse(normalLine[2]);
                         float ny = float.Parse(normalLine[3]);
@@ -486,7 +485,8 @@ namespace VascularModelDeformation
                                 break;
                             }
                         }
-                        
+
+                        // 三角形の頂点を読み込む
                         line = reader.ReadLine().Trim();
                         string[] vertexLine1 = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         float x1 = float.Parse(vertexLine1[1]);
@@ -513,6 +513,8 @@ namespace VascularModelDeformation
                                 break;
                             }
                         }
+
+                        // 三角形を作成してリストに追加する
                         Triangle triangle = new Triangle(
                             numberOfTriangles,
                             new Node(x1, y1, z1),
